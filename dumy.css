@@ -1,0 +1,39 @@
+@font-face {
+    font-family: Technovier;
+    src: url("fonts/technovier/Techovier .ttf");
+  }
+  
+  @font-face {
+    font-family: MadeInfinity;
+    src: url("fonts/made_infinity/MADEINFINITY\ PERSONALUSE-Regular.otf");
+  }
+  
+  @font-face {
+    font-family: Cybernet;
+    src: url("fonts/Cybernet.ttf");
+  }
+  
+  @font-face {
+    font-family: Cybereye;
+    src: url("fonts/Cyberye.ttf");
+  }
+  
+  @font-face {
+    font-family: LedLight;
+    src: url("fonts/LEDLIGHT.otf");
+  }
+  
+  @font-face {
+    font-family: Pirulen;
+    src: url("fonts/pirulen rg.otf");
+  }
+  
+  @font-face {
+    font-family: VirtualWorld;
+    src: url("fonts/VirtualWorld.ttf");
+  }
+  
+  @font-face {
+    font-family: vt220;
+    src: url("fonts/vt220.ttf");
+  }

@@ -1,0 +1,26 @@
+{
+  "name": "pi-portfolio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npx tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "glob": "^10.3.10",
+    "html-minifier": "^4.0.0",
+    "purgecss": "^5.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-glsl": "^1.2.0",
+    "vite-plugin-minify": "^1.5.2",
+    "vite-plugin-singlefile": "^0.13.5",
+    "webpack-cli": "^5.1.4"
+  },
+  "sideEffects": [],
+  "dependencies": {
+    "twgl.js": "^5.5.3"
+  }
+}
