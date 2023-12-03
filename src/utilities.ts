@@ -41,12 +41,12 @@ export function event_xy(event: TouchEvent): [number, number] {
 }
 
 export function add_touchstart_callback(target: HTMLElement, callback: TouchCallback) {
-  target.addEventListener("touchstart", callback, {passive: true})
+  target.addEventListener("touchstart", callback, {passive: false})
 }
 
 export function add_touch_callbacks(target: HTMLElement, touchstart_callback: TouchCallback, touchmove_callback: TouchCallback) {
   add_touchstart_callback(target, touchstart_callback);
-  target.addEventListener("touchmove", touchmove_callback, {passive: true});
+  target.addEventListener("touchmove", touchmove_callback, {passive: false});
 }
 
 export function u8_to_vec3(color: Color): string {

@@ -43,7 +43,8 @@ class Shader {
   public sources: { frag: ShaderSource; vert: ShaderSource };
   private program: ProgramInfo;
   private data: ShaderData;
-  private target: Target | undefined;
+  private target?: Target;
+  // @ts-ignore
   private type: ShaderType;
   public uniforms: Uniforms;
 
