@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["index", "articles/articles.ts", "articles"]
 }

@@ -6,11 +6,10 @@ import {
 } from "./utilities.ts";
 import { worley_frag_glsl } from "./shaders.ts";
 
-import { Shader, ShaderType } from "./shader.ts";
+import { Shader } from "./shader.ts";
 import { Context } from "./context.ts";
 
-console.log('GRAPHICS AND CODE DESIGNED BY FAY CARSONS 2023 \n HOSTED ON THE RASPBERRY PI IN MY BEDROOM')
-
+// SHADERS
 interface State {
   context: Context;
   shaders: { [key: string]: Shader };
@@ -42,12 +41,9 @@ function init() {
     sources: {
       frag: { glsl: worley_frag_glsl, label: "worley noise fragment shader" },
     },
-    type: ShaderType.Purefrag,
     uniforms,
   });
-  //worley_frag.add_target(ctx, { format: ctx.gl.RGBA, mag: ctx.gl.LINEAR });
-
-
+  
   window.addEventListener("resize", function (this: Window, _: UIEvent) {
     const resolution: [number, number] = [this.innerWidth, this.innerHeight];
     worley_frag.reset_uniforms({ resolution, ...worley_frag.uniforms });

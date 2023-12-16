@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: AuroraPro;
+  src: url("./resources/fonts/AURORA-PRO.otf");
+}
+
+@font-face {
+  font-family: Type;
+  src: url("./resources/fonts/Retron2000.ttf");
+}
+
+@font-face {
+  font-family: RoundPop;
+  src: url("./resources/fonts/roundpop.ttf");
+}
+
+canvas {
+    z-index: -1;
+}
+
+.aurora {
+  font-family: AuroraPro;
+}
+
+.roundpop {
+  font-family: RoundPop;
+  color: white
+}
+
+.textstroke-3 {
+  -webkit-text-stroke: 3px white;
+}
+
+.textstroke-2 {
+  -webkit-text-stroke: 2px white;
+}
+
+.textstroke-1 {
+  -webkit-text-stroke: 1px white;
+}

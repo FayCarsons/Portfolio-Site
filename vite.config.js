@@ -1,12 +1,17 @@
 import { defineConfig } from "vite";
-import { viteSingleFile } from "vite-plugin-singlefile";
-import {ViteMinifyPlugin} from 'vite-plugin-minify'
-import glsl from 'vite-plugin-glsl';
+import { ViteMinifyPlugin } from "vite-plugin-minify";
+import { resolve } from "path";
 
 export default defineConfig({
-    plugins: [glsl(), viteSingleFile({ removeViteModuleLoader: true}), ViteMinifyPlugin({})],
-    build: {
-        minify: true,
-        cssMinify: true,
-    }
-})
+  plugins: [ViteMinifyPlugin({})],
+  build: {
+    minify: true,
+    cssMinify: true,
+    rollupOptions: {
+      input: {
+        index: resolve(__dirname, "index.html"),
+        articles: resolve(__dirname, "articles.html"),
+      },
+    },
+  },
+});

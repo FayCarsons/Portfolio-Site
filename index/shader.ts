@@ -15,11 +15,6 @@ import {
 } from "twgl.js";
 import { Context } from "./context";
 
-export enum ShaderType {
-  Vertex,
-  Purefrag,
-}
-
 export type Uniforms = { [key: string]: any };
 
 interface Target {
@@ -29,7 +24,6 @@ interface Target {
 
 interface ShaderConstructor {
   sources: { frag: ShaderSource; vert?: ShaderSource };
-  type?: ShaderType;
   target?: Target;
   data?: ShaderData;
   uniforms?: Uniforms;
@@ -44,16 +38,16 @@ class Shader {
   private program: ProgramInfo;
   private data: ShaderData;
   private target?: Target;
-  // @ts-ignore
-  private type: ShaderType;
   public uniforms: Uniforms;
 
   constructor(
     ctx: Context,
-    { sources, target, type, data, uniforms }: ShaderConstructor
+    { sources, target, data, uniforms }: ShaderConstructor
   ) {
+    const is_purefrag = sources.vert === null;
+
     this.sources = { frag: sources.frag, vert: sources.vert || trivial_vert };
-    if (!type || !data || type === ShaderType.Purefrag) {
+    if (is_purefrag || !data) {
       const fullscreen_triangle_buffer = {
         geometry_buffer: createBufferInfoFromArrays(ctx.gl, {
           position: { numComponents: 2, data: [-1, 3, -1, -1, 3, -1] },
@@ -61,15 +55,12 @@ class Shader {
       };
       this.data = { ...fullscreen_triangle_buffer, ...data };
     } else {
+      if (!data) throw new Error("Vert shaders requires vertex data");
       this.data = data;
     }
-    this.type = type || ShaderType.Purefrag;
     this.uniforms = uniforms || { size: ctx.resolution };
     this.target = target;
     this.program = createProgramInfo(ctx.gl, this.program_pair);
-
-    // PLACEHOLDER
-    this.type = ShaderType.Purefrag;
   }
 
   add_target({ gl }: Context, opts: AttachmentOptions) {
@@ -98,7 +89,7 @@ class Shader {
 
   render(ctx: Context, size?: [number, number]) {
     const { gl } = ctx;
-    const resolution = size || ctx.resolution; 
+    const resolution = size || ctx.resolution;
     this.use(gl);
     this.bind_uniforms();
     setBuffersAndAttributes(gl, this.program, this.data.geometry_buffer);

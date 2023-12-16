@@ -1,134 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Fay Carsons</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fay Carsons</title>
-    <style>
-      @font-face {
-        font-family: AuroraPro;
-        src: url("./resources/fonts/AURORA-PRO.otf");
-      }
-
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-
-      canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        overflow: hidden;
-        width: 100vw;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        z-index: -100;
-      }
-
-      #app {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 1;
-      }
-
-      #name {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-family: AuroraPro;
-        font-size: 5rem;
-        color: transparent;
-        -webkit-text-stroke: 1px white;
-        margin: 0.333em 0;
-        text-align: center;
-        text-indent: 0%;
-      }
-
-      #links {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-around;
-        padding: 0;
-        margin: 0;
-      }
-
-      .link {
-        display: block;
-        width: 3em; /* Adjust the size as needed */
-        height: fit-content;
-        color: white;
-        transition: filter 0.3s ease-in-out;
-        filter: blur(0px) drop-shadow(0 0 0.05em white);
-      }
-
-      .link:hover {
-        filter: blur(2px) drop-shadow(0 0 0.1em white);
-      }
-
-      @media screen and (max-width: 600px) {
-        #name {
-          font-size: 3rem; /* Adjust the font size for smaller screens */
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: AuroraPro;
-          color: transparent;
-          -webkit-text-stroke: 1px white;
-          margin: 0.333em 0;
-          padding: 0 0;
-          text-align: center;
-          text-indent: 0%;
-        }
-
-        .feather {
-          width: 24px;
-          height: 24px;
-        }
-      }
-
-      @media screen and (max-width: 300px) {
-        #name {
-          font-size: 2rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: AuroraPro;
-          color: transparent;
-          -webkit-text-stroke: 1px white;
-          padding: 0 0;
-          margin: 0.2em 0;
-          text-align: center;
-          text-indent: 0%;
-        }
-
-        .feather {
-          width: 16;
-          height: 16;
-        }
-      }
-    </style>
+    <script type="module" src="/index/main.ts"></script>
+    <link
+      rel="stylesheet"
+      href="/Users/fay/Desktop/Code/javascript/pi-portfolio/out.css"
+    />
   </head>
-  <body>
-    <div id="app">
-      <h1 id="name">Fay Carsons</h1>
-      <div id="links">
-        <a class="link" href="https://instagram.com/faycarsons">
+  <body class="overflow-hidden m-0 p-0">
+    <!-- APP DIV -->
+    <div id="app" class="w-screen h-screen flex flex-col">
+      <div
+        class="flex flex-col justify-center items-center w-screen h-screen z-10 m-0 p-0 overflow-hidden"
+      >
+        <!-- HEADER -->
+        <h1
+          id="name"
+          class="aurora textstroke-3 text-7xl text-transparent mb-4 text-center tracking-wider"
+        >
+          Fay Carsons
+        </h1>
+
+        <!-- NAVIGATION LINKS -->
+        <div
+          class="relative flex flex-row justify-center items-center space-x-2"
+        >
+          <a
+            aria-label="articles"
+            class="roundpop text-white tracking-wider"
+            href="/articles"
+            >articles</a
+          >
+          <span class="h-2 border-l mx-2 border-white"></span>
+          <a
+            aria-label="sketches"
+            class="roundpop text-white tracking-wider"
+            href="/sketches"
+            >sketches</a
+          >
+        </div>
+      </div>
+
+      <!-- SOCIAL MEDIA LINKS -->
+      <div
+        id="links"
+        class="mb-4 flex flex-row justify-center content-center z-10"
+      >
+        <a
+          class="block w-4 mx-6 stroke-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+          href="https://instagram.com/faycarsons"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="white"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -139,14 +70,16 @@
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
           </svg>
         </a>
-        <a class="link" href="https://twitter.com/fay_carsons"
+        <a
+          class="block w-4 mx-6 stroke-white drop-shadow-sm shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+          href="https://twitter.com/fay_carsons"
           ><svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="white"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -157,14 +90,17 @@
             ></path>
           </svg>
         </a>
-        <a class="link" href="https://github.com/faycarsons">
+        <a
+          class="block w-4 mx-6 stroke-white text-shadow shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+          href="https://github.com/faycarsons"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="white"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -177,7 +113,9 @@
         </a>
       </div>
     </div>
-    <canvas id="canvas"></canvas>
-    <script type="module" src="/src/main.ts"></script>
+    <canvas
+      id="canvas"
+      class="absolute inset-0 h-[100dvh] w-[100dvw] m-0 p-0 z-0"
+    ></canvas>
   </body>
 </html>
