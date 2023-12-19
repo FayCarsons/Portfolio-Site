@@ -3,17 +3,20 @@ import {
   add_touch_callbacks,
   event_xy,
   map,
-} from "./utilities.ts";
+} from "../lib/utilities.ts";
 import { worley_frag_glsl } from "./shaders.ts";
 
-import { Shader } from "./shader.ts";
-import { Context } from "./context.ts";
-
-// SHADERS
-interface State {
-  context: Context;
-  shaders: { [key: string]: Shader };
-}
+import {
+  Shader,
+  create_shader,
+  render_shader,
+  reset_uniforms,
+} from "../lib/shader.ts";
+import {
+  maximize_canvas,
+  canvas_resolution,
+  create_context,
+} from "../lib/context.ts";
 
 const SCROLL_FACTOR: number = 0.005;
 const TIME_FACTOR: number = 0.001;
@@ -29,53 +32,55 @@ function init() {
   add_touch_callbacks(canvas, touchstart_callback, touchmove_callback);
   add_scroll_callback(scroll_callback);
 
-  const ctx = new Context(canvas);
-  ctx.maximize_canvas();
+  const gl = create_context(canvas);
+  maximize_canvas(gl);
+
+  let size = canvas_resolution(gl);
 
   const uniforms = {
     scroll: [0, 0],
     time: 0,
-    resolution: [0, 0],
+    resolution: size,
   };
-  const worley_frag = new Shader(ctx, {
+  const worley = create_shader(gl, {
     sources: {
-      frag: { glsl: worley_frag_glsl, label: "worley noise fragment shader" },
+      frag: { glsl: worley_frag_glsl, label: "worley noise frag" },
     },
     uniforms,
   });
-  
-  window.addEventListener("resize", function (this: Window, _: UIEvent) {
-    const resolution: [number, number] = [this.innerWidth, this.innerHeight];
-    worley_frag.reset_uniforms({ resolution, ...worley_frag.uniforms });
-    ctx.maximize_canvas();
+
+  window.addEventListener("resize", function (_: UIEvent) {
+    const resolution: [number, number] = [
+      window.innerWidth,
+      window.innerHeight,
+    ];
+    reset_uniforms(worley, { ...worley.uniforms, resolution });
+    maximize_canvas(gl);
   });
 
   const app_state = {
-    context: ctx,
-    shaders: { worley: worley_frag },
+    gl: gl,
+    worley: worley
   };
-
-  render(app_state);
+  render(gl, worley);
 }
 
 // Render function
-function render({ context, shaders }: State): void {
-  const { worley } = shaders;
-
-  context.maximize_canvas();
+function render(gl: WebGL2RenderingContext, worley: Shader) {
+  maximize_canvas(gl);
 
   const uniforms = {
     scroll: SCROLL.map((n) => n * SCROLL_FACTOR),
-    resolution: context.resolution,
-    time: worley.uniforms.time + TIME_FACTOR,
+    resolution: canvas_resolution(gl),
+    time: (worley.uniforms.time as number) + TIME_FACTOR,
   };
-  worley.reset_uniforms(uniforms);
 
-  worley.render(context);
+  worley = reset_uniforms(worley, uniforms);
+  render_shader(gl, worley);
 
   // Request the next frame
   requestAnimationFrame(() => {
-    render({ context, shaders });
+    render(gl, worley);
   });
 }
 

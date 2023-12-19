@@ -17,7 +17,7 @@ const check_context = (gl: MaybeContext) => {
     webgl2_supported(gl);
     return gl as WebGL2RenderingContext;
   } catch (err) {
-    alert(err);
+    console.error(err);
     return null;
   }
 };
