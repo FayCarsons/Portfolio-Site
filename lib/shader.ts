@@ -37,7 +37,7 @@ export type Shader = {
   data: ShaderData;
   target?: Target;
   uniforms: Uniforms;
-};
+}
 
 export const create_shader = (
   gl: WebGL2RenderingContext,
@@ -110,7 +110,7 @@ export const bind_uniforms = (shader: Shader) => {
   setUniforms(shader.program, shader.uniforms);
 };
 
-export const render_shader = (
+export const run_shader = (
   gl: WebGL2RenderingContext,
   shader: Shader,
   size?: [number, number]
