@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npx tsc && vite build",
-    "preview": "vite preview",
-    "markdown-convert": "node md_convert.js"
+    "dev": "clear && vite",
+    "build": "clear && npx tsc && vite build",
+    "preview": "clear && vite preview",
+    "markdown-convert": "clear && node md_convert.js"
   },
   "devDependencies": {
     "glob": "^10.3.10",

@@ -1,3 +1,5 @@
+Date: December 14, 2023
+
 # Outreachy blog 1: Introduce yourself!
 
 Hi! My name is Fay Carsons, I am a self-taught developer living in the sourthern USA. My focuses include creative coding, functional languages, web design, and performance + efficiency. In my free time I make music with my modular synthesizers and teach myself synthesizer design.

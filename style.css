@@ -41,3 +41,10 @@ canvas {
 .textstroke-1 {
   -webkit-text-stroke: 1px white;
 }
+
+#blog::-webkit-scrollbar {
+  width: 8px;
+}
+#blog::-webkit-scrollbar-track {
+  background:rgb(240, 240, 240)
+}

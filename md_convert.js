@@ -4,15 +4,35 @@ import * as marked from "marked"; // You may need to install this package using:
 import * as prettier from "prettier";
 
 const markdownFolder = "./markdown";
-const outputFilePath = "./articles/posts.ts";
+const js_output_path = "./articles/posts.ts";
+const json_path = "./resources/json/"
+
 const post_type =
-  "export type Post = {name: string, header: string, content: string}";
+  "export type Post = {name: string, date: string, header: string, content: string[]}";
 
 // Read the Markdown files from the folder
 const markdownFiles = fs.readdirSync(markdownFolder);
 
+function split_date(html) {
+  const date_regex = /Date: (\w+ \d{1,2}, \d{4})/;
+  const match = html.match(date_regex);
+  if (!match) {
+    throw new Error('blog must contain date written in format \'Month day, year\'')
+  }
+  return [html.replace(date_regex, ''), match ? match[1] : null]
+}
+
+function sort_by_date(a, b) {
+  const date_a = new Date(a.date);
+  const date_b = new Date(b.date);
+
+  if (date_a > date_b) return -1;
+  if (date_a < date_b) return 1;
+  return 0
+}
+
 // Convert each Markdown file to TSX
-const tsxFiles = await Promise.all(
+let posts = await Promise.all(
   markdownFiles.map((markdownFile) => {
     const markdownContent = fs.readFileSync(
       path.join(markdownFolder, markdownFile),
@@ -25,23 +45,38 @@ const tsxFiles = await Promise.all(
       .filter((char) => /[a-z]/i.test(char))
       .join("");
     const html = marked.parse(markdownContent);
+    const [html_wo_date, date] = split_date(html);
     const header_regex = /<h1>(.*?)<\/h1>/;
-    const header_match = html.match(header_regex);
+    const header_match = html_wo_date.match(header_regex);
     const header = header_match ? header_match[0] : null;
     if (header) {
-      console.log("Got header")
-      const content = html.replace(header_regex, '');
-      return `{name: \"${name}\", header: \"${header}\", content: \`${content}\`}`
+      const content = html_wo_date.replace(header_regex, '').replace('\n', '').match(/<p>(?!\s*<\/p>)(.*?)<\/p>/g);
+      const indented = content.map(s => s.replace(/<p>(.*?)<\/p>/, (match, text) => {
+        const indented_text = `\t${text}`;
+        return `<p>${indented_text}</p>`
+      }));
+      const json = {name, date, header, content: indented}
+      return json
     } else {
-      console.error("did not get header")
+      throw new Error(`Blog post ${name} does not contain header!`);
     }
     ;
   })
 );
 
+posts.sort(sort_by_date);
+posts.forEach(async post => {
+  const json = JSON.stringify(post);
+  const formatted = await prettier.format(json, {
+    parser: 'json'
+  })
+  fs.writeFileSync(json_path + post.name + '.json', formatted)
+})
+const json_paths = posts.map((post => '\'' + json_path + post.name + '.json\''))
+
 // Generate the TypeScript file with an array containing all TSX files
-const content = `${post_type}\n\n export const posts: Post[] = [\n${tsxFiles.join(
-  ""
+const content = `${post_type}\n\n export const posts: string[] = [\n${json_paths.join(
+  ", "
 )}\n];`;
 
 const formatted_content = await prettier.format(content, {
@@ -49,6 +84,6 @@ const formatted_content = await prettier.format(content, {
 });
 
 // Write the content to the output file
-fs.writeFileSync(outputFilePath, formatted_content, "utf-8");
+fs.writeFileSync(js_output_path, formatted_content, "utf-8");
 
 console.log("Markdown conversion complete");

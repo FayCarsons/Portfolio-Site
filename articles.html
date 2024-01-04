@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Blog Post Title</title>
+    <title></title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -11,55 +11,67 @@
     <script type="module" src="/articles/articles.ts"></script>
   </head>
 
-  <body class="font-sans bg-gray-100 text-gray-800">
-    <header class="bg-white p-8">
-      <a class="absolute top-2 left-2 text-sm mb-2" href="/">home</a>
-      <div class="flex flex-col justify-center items-center">
-        <h1 class="text-3xl font-bold mb-2">
-          Outreachy Blog 1: introduce yourself
-        </h1>
-        <p class="text-gray-600 text-sm">Fay Carsons</p>
-        <p class="text-gray-600 text-sm">December 14, 2023</p>
+  <body
+    class="h-screen w-screen flex items-center justify-center m-0 p-0 overflow-hidden"
+  >
+    <div
+      aria-label="blog container"
+      id="blog"
+      class="bg-gray-50 shadow-lg h-5/6 w-3/4 p-4 z-10 overflow-y-scroll rounded-sm"
+    >
+      <div id="header">
+        <!-- Blog header, date, and name go here -->
       </div>
-    </header>
-
-    <div class="container mx-auto mt-6 p-4">
-      <div class="prose lg:prose-xl">
-        <p>
-          Hi! My name is Fay Carsons, I am a self-taught developer living in the
-          southern USA. My focuses include creative coding, functional
-          languages, web design, and low-level optimization. In my free time I
-          make music with my modular synthesizers and teach myself embedded
-          systems. <br /><br />
-          My core values are curiosity, perseverance, and excellence in
-          everything that I do. <br /><br />
-        </p>
-        <p>
-          I am deeply fascinated by software, the theory behind it, the math
-          involved, and the ways in which we can translate these elements into
-          new and exciting art and digital experiences. <br /><br />
-
-          Coming from a somewhat unique background, not being a college
-          graduate, having little formal education in math and none in computer
-          science, and having faced significant hardship in my life, learning to
-          code and achieving my goals as a programmer has been difficult at
-          times. Through perseverance, I have achieved more than I ever could
-          have imagined and that brings me a great deal of joy. <br /><br />
-
-          And finally, excellence is crucial to me. In everything that I do, I
-          the final product to be something I am proud of. In the context
-          of software, all the tools necessary to write performant, efficient,
-          elegant programs are within reach so I prioritize those things. I
-          think a lot of modern software is bloated and inefficient, making user
-          experience difficult and frustrating, particularly for people with
-          less computational resources or disabilities. <br /><br />
-
-          I wanted to join outreachy because I wanted to become a better
-          programmer. I want to write better code, learn how to manage larger
-          projects, and get comfortable working with a team of people on a
-          shared goal. I'm very excited for what's to come!
-        </p>
+      <hr class="bg-gray-500 mx-auto w-[90%] my-4" />
+      <div id="post">
+        <!-- Blog content goes here -->
       </div>
     </div>
+
+    <button
+      id="left"
+      class="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 z-10"
+    >
+      <!-- SVG for previous button goes here -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="h-6 w-6 text-white"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
+
+    <button
+      id="right"
+      class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 z-10"
+    >
+      <!-- SVG for next button goes here -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="h-6 w-6 text-white"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        />
+      </svg>
+    </button>
+    <canvas
+      id="canvas"
+      class="absolute w-[100dvw] h-[100dvh] m-0 p-0 -z-10"
+    ></canvas>
   </body>
 </html>

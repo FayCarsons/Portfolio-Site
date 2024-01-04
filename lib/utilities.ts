@@ -28,6 +28,13 @@ export const add_touch_callbacks = (
   target.addEventListener("touchmove", touchmove_callback, { passive: false });
 };
 
+// ???
+
+export const log = <T>(x: T): T => {
+  console.log(x);
+  return x
+}
+
 // MATH FNS
 export const rand_int = (min: number, max: number): number => {
   if (max === undefined) {
@@ -137,8 +144,9 @@ export class Result<T, E = Error | string> {
     }
   }
 
-  unwrap(): T | E {
-    return this.inner
+  unwrap<A>(): A {
+    if (!this.ok) throw this.inner;
+    return this.inner as A
   }
 
   match<U, V>({ ok, err }: ResBlock<T, E, U, V>) {
