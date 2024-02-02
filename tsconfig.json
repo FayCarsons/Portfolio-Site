@@ -20,5 +20,13 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["index", "articles/articles.ts", "articles", "lib/utilities.ts", "index/shaders.ts", "lib/shader.ts", "lib/context.ts"],
+  "include": [
+    "index",
+    "articles/articles.ts",
+    "articles",
+    "lib/utilities.ts",
+    "index/shaders.ts",
+    "lib/shader.ts",
+    "lib/context.ts"
+  ]
 }

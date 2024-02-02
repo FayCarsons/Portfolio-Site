@@ -48,3 +48,7 @@ canvas {
 #blog::-webkit-scrollbar-track {
   background:rgb(240, 240, 240)
 }
+
+::backdrop {
+  filter: blur(0.3)
+}

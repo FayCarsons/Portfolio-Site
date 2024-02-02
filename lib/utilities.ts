@@ -32,8 +32,8 @@ export const add_touch_callbacks = (
 
 export const log = <T>(x: T): T => {
   console.log(x);
-  return x
-}
+  return x;
+};
 
 // MATH FNS
 export const rand_int = (min: number, max: number): number => {
@@ -42,6 +42,10 @@ export const rand_int = (min: number, max: number): number => {
     min = 0;
   }
   return (Math.random() * (max - min) + min) | 0;
+};
+
+export const rand_nth = <T>(a: T[]): T => {
+  return a[rand_int(0, a.length)];
 };
 
 export const uint_to_vec3 = (...args: number[]): string => {
@@ -67,6 +71,10 @@ export const partition = (
     return result;
   }, [] as number[]);
 };
+
+export const range = (start: number, end: number) => {
+  return Array.from({length: end - start}, (_, idx) => start + idx)
+}
 
 export const map2 = <T, U, V>(
   array1: T[],
@@ -146,7 +154,7 @@ export class Result<T, E = Error | string> {
 
   unwrap<A>(): A {
     if (!this.ok) throw this.inner;
-    return this.inner as A
+    return this.inner as A;
   }
 
   match<U, V>({ ok, err }: ResBlock<T, E, U, V>) {
@@ -175,8 +183,8 @@ export class Option<T> {
     return new Option(inner);
   }
 
-  static none(): Option<null> {
-    return new Option(null);
+  static none<T>(): Option<T> {
+    return new Option(null) as Option<T>;
   }
 
   is_some(): boolean {

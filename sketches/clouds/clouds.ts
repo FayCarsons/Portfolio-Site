@@ -18,8 +18,8 @@ import {
   create_context,
 } from "../../lib/context.ts";
 
-const SCROLL_FACTOR: number = 0.005;
-const TIME_FACTOR: number = 0.001;
+const SCROLL_FACTOR: number = 0.002;
+const TIME_FACTOR: number = 0.0015  ;
 
 let SCROLL_START: [number, number] = [0, 0];
 let SCROLL: [number, number] = [0, 0];
