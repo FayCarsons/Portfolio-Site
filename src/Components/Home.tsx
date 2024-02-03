@@ -1,11 +1,11 @@
 import { onMount } from "solid-js";
 import { initShaders } from "../Sketches/clouds/main";
 
-export const Home = () => {
+const Home = () => {
   onMount(initShaders);
-  
+
   return (
-    <div>
+    <div class="overflow-hidden m-0 p-0">
       <div id="app" class="w-screen h-screen flex flex-col">
         <div class="flex flex-col justify-center items-center w-screen h-screen z-10 m-0 p-0 overflow-hidden">
           <h1
@@ -104,3 +104,5 @@ export const Home = () => {
     </div>
   );
 };
+
+export default Home

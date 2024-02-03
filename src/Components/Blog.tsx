@@ -8,6 +8,7 @@ export type BlogProps = {
 const infoClass = "font-mono text-gray-500 text-xs mb-2";
 
 export const Blog = ({post}: BlogProps) => {
+    console.table(post)
   return (
     <section>
       <div id="header"innerHTML={post.header}>
@@ -15,7 +16,7 @@ export const Blog = ({post}: BlogProps) => {
         <p class={infoClass}>Fay Carsons</p>
       </div>
       <hr class="bg-gray-500 mx-auto w-[90%] my-4" />
-      <div id="post" innerHTML={post.body.join()}/>
+      <div id="post" innerHTML={post.body}/>
     </section>
   );
 };

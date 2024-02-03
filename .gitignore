@@ -26,4 +26,4 @@ dummy.css
 out.css 
 */package-lock.json
 
-./resources/json
+/public/json

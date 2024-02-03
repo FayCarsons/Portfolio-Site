@@ -12,7 +12,7 @@ import {
 import { posts, Post } from "../lib/posts";
 import { Blog } from "./Blog";
 import { initShaders } from "../../src/Sketches/clouds/main";
-import { log, range } from "../../src/lib/utilities";
+import { range } from "../../src/lib/utilities";
 import { useParams } from "@solidjs/router";
 
 let postCache: Post[] = [];
@@ -76,7 +76,7 @@ const createPostNav = (setIndex: Setter<number>, dir: Direction) => {
   };
 };
 
-export const Articles = () => {
+const Articles = () => {
   const { title } = useParams();
   const [idx, setIdx] = createSignal<number>(0);
   
@@ -85,13 +85,17 @@ export const Articles = () => {
   }
   
   const [post] = createResource(idx(), fetchPost);
+  
+  createEffect(() => {
+    cachePosts(idx())
+  }, idx())
 
   onMount(() => {
     initShaders()
   });
 
   return (
-    <div>
+    <div class="h-screen w-screen flex items-center justify-center m-0 p-0 overflow-hidden">
       <div
         aria-label="blog container"
         id="blog"
@@ -164,3 +168,5 @@ const Err = () => {
     </div>
   );
 };
+
+export default Articles

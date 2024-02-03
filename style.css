@@ -4,21 +4,17 @@
 
 @font-face {
   font-family: AuroraPro;
-  src: url("./public/fonts/AURORA-PRO.otf");
+  src: url("/fonts/AURORA-PRO.otf");
 }
 
 @font-face {
   font-family: Type;
-  src: url("./public/fonts/Retron2000.ttf");
+  src: url("/fonts/Retron2000.ttf");
 }
 
 @font-face {
   font-family: RoundPop;
-  src: url("./public/fonts/roundpop.ttf");
-}
-
-canvas {
-    z-index: -1;
+  src: url("/fonts/roundpop.ttf");
 }
 
 .aurora {
