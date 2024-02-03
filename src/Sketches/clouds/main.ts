@@ -3,20 +3,20 @@ import {
   add_touch_callbacks,
   event_xy,
   map2,
-} from "../../lib/utilities.ts";
-import { worley_frag_glsl } from "./shaders.ts";
+} from "../../lib/utilities.js";
+import { worley_frag_glsl } from "./shaders.js";
 
 import {
   Shader,
   create_shader,
   run_shader,
   reset_uniforms,
-} from "../../lib/shader.ts";
+} from "../../lib/shader.js";
 import {
   maximize_canvas,
   canvas_resolution,
   create_context,
-} from "../../lib/context.ts";
+} from "../../lib/context.js";
 
 const SCROLL_FACTOR: number = 0.002;
 const TIME_FACTOR: number = 0.0015  ;
@@ -24,7 +24,7 @@ const TIME_FACTOR: number = 0.0015  ;
 let SCROLL_START: [number, number] = [0, 0];
 let SCROLL: [number, number] = [0, 0];
 
-export function init_shaders() {
+export function initShaders() {
   const canvas: HTMLCanvasElement = document.getElementById(
     "canvas"
   ) as HTMLCanvasElement;

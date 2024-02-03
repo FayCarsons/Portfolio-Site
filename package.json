@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "clear && vite",
-    "build": "clear && npx tsc && vite build",
+    "prebuild": "./dev/scripts/blog-parser -i ./markdown -o ./public/json -r ./classes.json --js ./src/lib",
+    "build": "clear && vite build",
     "preview": "clear && vite preview",
-    "markdown-convert": "clear && node md_convert.js"
+    "tailwind": "npx tailwindcss -i ./style.css -o ./src/App.css --watch"
   },
   "devDependencies": {
     "glob": "^10.3.10",
@@ -21,10 +22,13 @@
     "vite-plugin-glsl": "^1.2.0",
     "vite-plugin-minify": "^1.5.2",
     "vite-plugin-singlefile": "^0.13.5",
+    "vite-plugin-solid": "^2.9.1",
     "webpack-cli": "^5.1.4"
   },
   "sideEffects": [],
   "dependencies": {
+    "@solidjs/router": "^0.11.3",
+    "solid-js": "^1.8.12",
     "twgl.js": "^5.5.3"
   }
 }

@@ -1,17 +1,10 @@
 import { defineConfig } from "vite";
-import { ViteMinifyPlugin } from "vite-plugin-minify";
-import { resolve } from "path";
+import solid from "vite-plugin-solid";
+import tailwind from 'tailwindcss'
 
 export default defineConfig({
-  plugins: [ ViteMinifyPlugin({})],
-  build: {
-    minify: true,
-    cssMinify: true,
-    rollupOptions: {
-      input: {
-        index: resolve(__dirname, "index.html"),
-        articles: resolve(__dirname, "articles.html"),
-      },
-    },
+  plugins: [solid()],
+  css: {
+    postcss: "./postcss.config.js",
   },
 });

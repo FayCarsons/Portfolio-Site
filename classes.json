@@ -1,0 +1,5 @@
+{
+    "p": {"class": "font-mono text-sm my-4 mx-auto"},
+    "h1": {"class": "text-3xl font-bold mb-2"},
+    "code": {"class": "bg-gray"}
+}
