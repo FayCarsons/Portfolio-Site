@@ -12,8 +12,8 @@ import {
   resizeFramebufferInfo,
   setBuffersAndAttributes,
   setUniforms,
-} from "twgl.js";
-import { canvas_resolution } from "./context";
+} from 'twgl.js';
+import { canvasResolution } from './context';
 
 export type Uniforms = { [key: string]: number | number[] | number[][] };
 
@@ -37,11 +37,11 @@ export type Shader = {
   data: ShaderData;
   target?: Target;
   uniforms: Uniforms;
-}
+};
 
 export const create_shader = (
   gl: WebGL2RenderingContext,
-  args: ShaderConstructor
+  args: ShaderConstructor,
 ): Shader => {
   const { sources, target, data, uniforms } = args;
 
@@ -61,10 +61,10 @@ export const create_shader = (
     };
     instance_data = { ...fullscreen_triangle_buffer, ...data };
   } else {
-    if (!data) throw new Error("Vert shaders requires vertex data");
+    if (!data) throw new Error('Vert shaders requires vertex data');
     instance_data = data;
   }
-  const instance_uniforms = uniforms || { size: canvas_resolution(gl) };
+  const instance_uniforms = uniforms || { size: canvasResolution(gl) };
 
   const program_pair = [instance_sources.vert.glsl, instance_sources.frag.glsl];
   const program = createProgramInfo(gl, program_pair);
@@ -81,7 +81,7 @@ export const create_shader = (
 export const add_target = (
   gl: WebGL2RenderingContext,
   shader: Shader,
-  opts: AttachmentOptions
+  opts: AttachmentOptions,
 ): Shader => {
   const attachments = Array.isArray(opts) ? opts : [opts];
   const framebuffer = createFramebufferInfo(gl, attachments);
@@ -100,7 +100,7 @@ export const reset_uniforms = (shader: Shader, uniforms: Uniforms): Shader => {
 
 export const update_uniforms = (
   shader: Shader,
-  update: (uniforms: Uniforms) => Uniforms
+  update: (uniforms: Uniforms) => Uniforms,
 ): Shader => {
   const updated_uniforms = update(shader.uniforms);
   return { ...shader, uniforms: updated_uniforms };
@@ -113,9 +113,9 @@ export const bind_uniforms = (shader: Shader) => {
 export const run_shader = (
   gl: WebGL2RenderingContext,
   shader: Shader,
-  size?: [number, number]
+  size?: [number, number],
 ) => {
-  const resolution = size || canvas_resolution(gl);
+  const resolution = size || canvasResolution(gl);
   use_shader(gl, shader);
   bind_uniforms(shader);
   if (shader.target) {
@@ -124,7 +124,7 @@ export const run_shader = (
       shader.target.framebuffer,
       shader.target.format,
       resolution[0],
-      resolution[1]
+      resolution[1],
     );
   }
   bindFramebufferInfo(gl, shader.target?.framebuffer);
@@ -134,7 +134,7 @@ export const run_shader = (
 export const get_textures = (shader: Shader) => {
   if (!shader.target)
     throw new Error(
-      `Cannot access non-existant texs in ${shader.sources.frag.label}`
+      `Cannot access non-existant texs in ${shader.sources.frag.label}`,
     );
   const textures = shader.target.framebuffer.attachments;
   return Array.isArray(textures) ? textures : [textures];
@@ -148,5 +148,5 @@ void main() {
 
 const trivial_vert = {
   glsl: TRIVIAL_VERT_GLSL,
-  label: "fullscreen triangle vertex shader",
+  label: 'fullscreen triangle vertex shader',
 };

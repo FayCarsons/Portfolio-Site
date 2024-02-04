@@ -8,13 +8,16 @@
     "prebuild": "./dev/scripts/blog-parser -i ./markdown -o ./public/json -r ./classes.json --js ./src/lib",
     "build": "clear && vite build",
     "preview": "clear && vite preview",
-    "tailwind": "npx tailwindcss -i ./style.css -o ./src/App.css --watch"
+    "tailwind": "npx tailwindcss -i ./style.css -o ./src/App.css --watch",
+    "fmt": "npx prettier ./src/**/* --single-quote -w --plugin prettier-plugin-tailwindcss",
+    "deploy": "npm run build && scp -r ./dist 6nosis@kiggyserve.local:/var/www/faycarsons"
   },
   "devDependencies": {
     "glob": "^10.3.10",
     "html-minifier": "^4.0.0",
     "marked": "^11.1.0",
-    "prettier": "^3.1.1",
+    "prettier": "^3.2.4",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "purgecss": "^5.0.0",
     "tailwindcss": "^3.3.6",
     "typescript": "^5.2.2",

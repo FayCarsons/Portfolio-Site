@@ -1,8 +1,8 @@
 type TouchCallback = (event: TouchEvent) => void;
 
 // EVENT HANDLER FNS
-export function add_scroll_callback(callback: (event: WheelEvent) => void) {
-  document.addEventListener("wheel", callback, { passive: true });
+export function addScrollCallback(callback: (event: WheelEvent) => void) {
+  document.addEventListener('wheel', callback, { passive: true });
 }
 
 export const event_xy = (event: TouchEvent): [number, number] => {
@@ -14,22 +14,21 @@ export const event_xy = (event: TouchEvent): [number, number] => {
 
 export const add_touchstart_callback = (
   target: HTMLElement,
-  callback: TouchCallback
+  callback: TouchCallback,
 ) => {
-  target.addEventListener("touchstart", callback, { passive: false });
+  target.addEventListener('touchstart', callback, { passive: false });
 };
 
-export const add_touch_callbacks = (
+export const addTouchCallbacks = (
   target: HTMLElement,
   touchstart_callback: TouchCallback,
-  touchmove_callback: TouchCallback
+  touchmove_callback: TouchCallback,
 ) => {
   add_touchstart_callback(target, touchstart_callback);
-  target.addEventListener("touchmove", touchmove_callback, { passive: false });
+  target.addEventListener('touchmove', touchmove_callback, { passive: false });
 };
 
 // ???
-
 export const log = <T>(x: T): T => {
   console.log(x);
   return x;
@@ -57,10 +56,10 @@ export const uint_to_vec3 = (...args: number[]): string => {
 export const partition = (
   size: number,
   step: number,
-  array: number[]
+  array: number[],
 ): number[] => {
   if (size <= 0 || step <= 0) {
-    throw new Error("Size and step must be greater than 0");
+    throw new Error('Size and step must be greater than 0');
   }
 
   return array.reduce((result, _, i) => {
@@ -73,17 +72,17 @@ export const partition = (
 };
 
 export const range = (start: number, end: number) => {
-  return Array.from({length: end - start}, (_, idx) => start + idx)
-}
+  return Array.from({ length: end - start }, (_, idx) => start + idx);
+};
 
 export const map2 = <T, U, V>(
   array1: T[],
   array2: U[],
-  callback: (item1: T, item2: U, index: number) => V
+  callback: (item1: T, item2: U, index: number) => V,
 ): V[] => {
   const min_len = Math.min(array1.length, array2.length);
   return Array.from({ length: min_len }, (_, index) =>
-    callback(array1[index], array2[index], index)
+    callback(array1[index], array2[index], index),
   );
 };
 
@@ -95,7 +94,7 @@ export const repeat = <T>(n: number, expr: T): T[] => {
 
 export const comp = <T, U, V>(
   f: (x: U) => V,
-  g: (x: T) => U
+  g: (x: T) => U,
 ): ((x: T) => V) => {
   return (x: T) => f(g(x));
 };

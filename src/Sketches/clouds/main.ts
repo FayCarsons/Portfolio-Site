@@ -1,41 +1,41 @@
 import {
-  add_scroll_callback,
-  add_touch_callbacks,
+  addScrollCallback,
+  addTouchCallbacks,
   event_xy,
   map2,
-} from "../../lib/utilities.js";
-import { worley_frag_glsl } from "./shaders.js";
+} from '../../lib/utilities.js';
+import { worley_frag_glsl } from './shaders.js';
 
 import {
   Shader,
   create_shader,
   run_shader,
   reset_uniforms,
-} from "../../lib/shader.js";
+} from '../../lib/shader.js';
 import {
-  maximize_canvas,
-  canvas_resolution,
-  create_context,
-} from "../../lib/context.js";
+  maximizeCanvas,
+  canvasResolution,
+  createContext,
+} from '../../lib/context.js';
 
 const SCROLL_FACTOR: number = 0.002;
-const TIME_FACTOR: number = 0.0015  ;
+const TIME_FACTOR: number = 0.0015;
 
 let SCROLL_START: [number, number] = [0, 0];
 let SCROLL: [number, number] = [0, 0];
 
 export function initShaders() {
   const canvas: HTMLCanvasElement = document.getElementById(
-    "canvas"
+    'canvas',
   ) as HTMLCanvasElement;
 
-  add_touch_callbacks(canvas, touchstart_callback, touchmove_callback);
-  add_scroll_callback(scroll_callback);
+  addTouchCallbacks(document.body, touchStartCallback, touchmoveCallback);
+  addScrollCallback(scroll_callback);
 
-  const gl = create_context(canvas);
-  maximize_canvas(gl);
+  const gl = createContext(canvas);
+  maximizeCanvas(gl);
 
-  let size = canvas_resolution(gl);
+  let size = canvasResolution(gl);
 
   const uniforms = {
     scroll: [0, 0],
@@ -45,18 +45,18 @@ export function initShaders() {
 
   let worley = create_shader(gl, {
     sources: {
-      frag: { glsl: worley_frag_glsl, label: "worley noise frag" },
+      frag: { glsl: worley_frag_glsl, label: 'worley noise frag' },
     },
     uniforms,
   });
 
-  window.addEventListener("resize", function (_: UIEvent) {
+  window.addEventListener('resize', function (_: UIEvent) {
     const resolution: [number, number] = [
       window.innerWidth,
       window.innerHeight,
     ];
     worley = reset_uniforms(worley, { ...worley.uniforms, resolution });
-    maximize_canvas(gl);
+    maximizeCanvas(gl);
   });
 
   render(gl, worley);
@@ -64,11 +64,11 @@ export function initShaders() {
 
 // Render function
 function render(gl: WebGL2RenderingContext, worley: Shader) {
-  maximize_canvas(gl);
+  maximizeCanvas(gl);
 
   const uniforms = {
     scroll: SCROLL.map((n) => n * SCROLL_FACTOR),
-    resolution: canvas_resolution(gl),
+    resolution: canvasResolution(gl),
     time: (worley.uniforms.time as number) + TIME_FACTOR,
   };
 
@@ -81,15 +81,15 @@ function render(gl: WebGL2RenderingContext, worley: Shader) {
   });
 }
 
-const touchstart_callback = (event: TouchEvent) => {
+const touchStartCallback = (event: TouchEvent) => {
   SCROLL_START = event_xy(event);
 };
 
-const touchmove_callback = (event: TouchEvent) => {
+const touchmoveCallback = (event: TouchEvent) => {
   const move = map2(
     event_xy(event),
     SCROLL_START,
-    (a: number, b: number) => a - b
+    (a: number, b: number) => a - b,
   );
   SCROLL = map2(SCROLL, move, (a, b) => a + b) as [number, number];
 };

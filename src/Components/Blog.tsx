@@ -1,22 +1,20 @@
-import { createEffect, createSignal } from "solid-js";
-import { Post } from "../lib/posts";
+import { createEffect, createSignal } from 'solid-js';
+import { Post } from '../lib/posts';
 
 export type BlogProps = {
-  post: Post
+  post: Post;
 };
 
-const infoClass = "font-mono text-gray-500 text-xs mb-2";
+const infoClass = 'font-mono text-gray-500 text-xs mb-2';
 
-export const Blog = ({post}: BlogProps) => {
-    console.table(post)
+export const Blog = ({ post }: BlogProps) => {
   return (
     <section>
-      <div id="header"innerHTML={post.header}>
-        <p class={infoClass}>{post.date}</p>
-        <p class={infoClass}>Fay Carsons</p>
-      </div>
-      <hr class="bg-gray-500 mx-auto w-[90%] my-4" />
-      <div id="post" innerHTML={post.body}/>
+      <div aria-roledescription="header" innerHTML={post.header} />
+      <p class={infoClass}>{post.date}</p>
+      <p class={infoClass}>Fay Carsons</p>
+      <hr class="mx-auto my-4 w-[90%] bg-gray-500" />
+      <div id="post" innerHTML={post.body} />
     </section>
   );
 };

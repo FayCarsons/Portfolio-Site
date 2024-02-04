@@ -9,12 +9,14 @@ import './App.css'
 
 const Articles = lazy(() => import('./Components/Articles'));
 const Home = lazy(() => import('./Components/Home'));
+const Sketches = lazy(() => import('./Components/Sketches'));
 
 render(
     () => 
         <Router>
-            <Route path="/" component={Home}></Route>
-            <Route path="/articles/:title?" component={Articles}></Route>
+            <Route path="/" component={Home}/>
+            <Route path="/articles/:title?" component={Articles}/>
+            <Route path="/sketches" component={Sketches}/>
         </Router>
     ,
     document.getElementById('root')

@@ -1,7 +1,7 @@
-import { uint_to_vec3 } from "../../lib/utilities";
+import { uint_to_vec3 } from '../../lib/utilities';
 
 const SKY_BLUE = uint_to_vec3(135, 206, 235);
-const SEED = Math.random() * 0xFFFFFFFF;
+const SEED = Math.random() * 0xffffffff;
 const RECT_FACTOR = 0.15;
 
 export const worley_frag_glsl = `#version 300 es

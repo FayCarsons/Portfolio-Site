@@ -1,31 +1,31 @@
-import { onMount } from "solid-js";
-import { initShaders } from "../Sketches/clouds/main";
+import { onMount } from 'solid-js';
+import { initShaders } from '../Sketches/clouds/main';
 
 const Home = () => {
   onMount(initShaders);
 
   return (
-    <div class="overflow-hidden m-0 p-0">
-      <div id="app" class="w-screen h-screen flex flex-col">
-        <div class="flex flex-col justify-center items-center w-screen h-screen z-10 m-0 p-0 overflow-hidden">
+    <div class="m-0 overflow-hidden p-0">
+      <div id="app" class="flex h-screen w-screen flex-col">
+        <div class="z-10 m-0 flex h-screen w-screen flex-col items-center justify-center overflow-hidden p-0">
           <h1
             id="name"
-            class="aurora textstroke-3 text-7xl text-transparent mb-4 text-center tracking-wider"
+            class="aurora textstroke-3 mb-4 text-center text-7xl tracking-wider text-transparent"
           >
             Fay Carsons
           </h1>
-          <div class="relative flex flex-row justify-center items-center space-x-2">
+          <div class="relative flex flex-row items-center justify-center space-x-2">
             <a
               aria-label="articles"
-              class="roundpop text-white tracking-wider"
+              class="roundpop tracking-wider text-white"
               href="/articles"
             >
               articles
             </a>
-            <span class="h-2 border-l mx-2 border-white"></span>
+            <span class="mx-2 h-2 border-l border-white"></span>
             <a
               aria-label="sketches"
-              class="roundpop text-white tracking-wider"
+              class="roundpop tracking-wider text-white"
               href="/sketches"
             >
               sketches
@@ -34,10 +34,10 @@ const Home = () => {
         </div>
         <div
           id="links"
-          class="mb-4 flex flex-row justify-center content-center z-10"
+          class="z-10 mb-4 flex flex-row content-center justify-center"
         >
           <a
-            class="block w-4 mx-6 stroke-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+            class="mx-6 block w-4 stroke-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
             href="https://instagram.com/faycarsons"
           >
             <svg
@@ -58,7 +58,7 @@ const Home = () => {
             </svg>
           </a>
           <a
-            class="block w-4 mx-6 stroke-white drop-shadow-sm shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+            class="mx-6 block w-4 stroke-white shadow-white blur-0 drop-shadow-sm transition duration-200 ease-in hover:blur-[1px]"
             href="https://twitter.com/fay_carsons"
           >
             <svg
@@ -77,7 +77,7 @@ const Home = () => {
             </svg>
           </a>
           <a
-            class="block w-4 mx-6 stroke-white text-shadow shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+            class="text-shadow mx-6 block w-4 stroke-white shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
             href="https://github.com/faycarsons"
           >
             <svg
@@ -99,10 +99,10 @@ const Home = () => {
       </div>
       <canvas
         id="canvas"
-        class="absolute inset-0 h-[100dvh] w-[100dvw] m-0 p-0 z-0"
+        class="absolute inset-0 z-0 m-0 h-[100dvh] w-[100dvw] p-0"
       ></canvas>
     </div>
   );
 };
 
-export default Home
+export default Home;
