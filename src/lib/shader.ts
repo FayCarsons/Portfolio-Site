@@ -39,7 +39,7 @@ export type Shader = {
   uniforms: Uniforms;
 };
 
-export const create_shader = (
+export const createShader = (
   gl: WebGL2RenderingContext,
   args: ShaderConstructor,
 ): Shader => {
@@ -49,7 +49,7 @@ export const create_shader = (
 
   const instance_sources = {
     frag: sources.frag,
-    vert: sources.vert || trivial_vert,
+    vert: sources.vert || trivialVert,
   };
 
   let instance_data;
@@ -78,7 +78,7 @@ export const create_shader = (
   };
 };
 
-export const add_target = (
+export const addTarget = (
   gl: WebGL2RenderingContext,
   shader: Shader,
   opts: AttachmentOptions,
@@ -89,16 +89,16 @@ export const add_target = (
   return { ...shader, target };
 };
 
-export const use_shader = (gl: WebGL2RenderingContext, shader: Shader) => {
+export const useShader = (gl: WebGL2RenderingContext, shader: Shader) => {
   gl.useProgram(shader.program.program);
   setBuffersAndAttributes(gl, shader.program, shader.data.geometry_buffer);
 };
 
-export const reset_uniforms = (shader: Shader, uniforms: Uniforms): Shader => {
+export const resetUniforms = (shader: Shader, uniforms: Uniforms): Shader => {
   return { ...shader, uniforms };
 };
 
-export const update_uniforms = (
+export const updateUniforms = (
   shader: Shader,
   update: (uniforms: Uniforms) => Uniforms,
 ): Shader => {
@@ -106,18 +106,18 @@ export const update_uniforms = (
   return { ...shader, uniforms: updated_uniforms };
 };
 
-export const bind_uniforms = (shader: Shader) => {
+export const bindUniforms = (shader: Shader) => {
   setUniforms(shader.program, shader.uniforms);
 };
 
-export const run_shader = (
+export const runShader = (
   gl: WebGL2RenderingContext,
   shader: Shader,
   size?: [number, number],
 ) => {
   const resolution = size || canvasResolution(gl);
-  use_shader(gl, shader);
-  bind_uniforms(shader);
+  useShader(gl, shader);
+  bindUniforms(shader);
   if (shader.target) {
     resizeFramebufferInfo(
       gl,
@@ -131,7 +131,7 @@ export const run_shader = (
   drawBufferInfo(gl, shader.data.geometry_buffer);
 };
 
-export const get_textures = (shader: Shader) => {
+export const getTextures = (shader: Shader) => {
   if (!shader.target)
     throw new Error(
       `Cannot access non-existant texs in ${shader.sources.frag.label}`,
@@ -146,7 +146,7 @@ void main() {
     gl_Position = vec4(position, 0.0, 1.0);
 }`;
 
-const trivial_vert = {
+const trivialVert = {
   glsl: TRIVIAL_VERT_GLSL,
   label: 'fullscreen triangle vertex shader',
 };

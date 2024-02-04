@@ -8,9 +8,9 @@ import { worley_frag_glsl } from './shaders.js';
 
 import {
   Shader,
-  create_shader,
-  run_shader,
-  reset_uniforms,
+  createShader,
+  runShader,
+  resetUniforms,
 } from '../../lib/shader.js';
 import {
   maximizeCanvas,
@@ -43,7 +43,7 @@ export function initShaders() {
     resolution: size,
   };
 
-  let worley = create_shader(gl, {
+  let worley = createShader(gl, {
     sources: {
       frag: { glsl: worley_frag_glsl, label: 'worley noise frag' },
     },
@@ -55,7 +55,7 @@ export function initShaders() {
       window.innerWidth,
       window.innerHeight,
     ];
-    worley = reset_uniforms(worley, { ...worley.uniforms, resolution });
+    worley = resetUniforms(worley, { ...worley.uniforms, resolution });
     maximizeCanvas(gl);
   });
 
@@ -72,8 +72,8 @@ function render(gl: WebGL2RenderingContext, worley: Shader) {
     time: (worley.uniforms.time as number) + TIME_FACTOR,
   };
 
-  worley = reset_uniforms(worley, uniforms);
-  run_shader(gl, worley);
+  worley = resetUniforms(worley, uniforms);
+  runShader(gl, worley);
 
   // Request the next frame
   requestAnimationFrame(() => {

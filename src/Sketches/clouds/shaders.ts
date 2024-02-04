@@ -1,6 +1,6 @@
-import { uint_to_vec3 } from '../../lib/utilities';
+import { uintToVec3 } from '../../lib/utilities';
 
-const SKY_BLUE = uint_to_vec3(135, 206, 235);
+const SKY_BLUE = uintToVec3(135, 206, 235);
 const SEED = Math.random() * 0xffffffff;
 const RECT_FACTOR = 0.15;
 

@@ -21,7 +21,7 @@ export const maximizeCanvas = (gl: WebGL2RenderingContext) => {
   gl.canvas.height = height;
 };
 
-export const set_target = (gl: WebGL2RenderingContext, shader: Shader) => {
+export const setTarget = (gl: WebGL2RenderingContext, shader: Shader) => {
   bindFramebufferInfo(gl, shader.target?.framebuffer);
 };
 

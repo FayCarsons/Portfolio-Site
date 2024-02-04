@@ -1,4 +1,4 @@
-import { rand_int } from './utilities';
+import { randInt } from './utilities';
 
 type EnvelopeShape = 'linear' | 'exponential';
 
@@ -7,10 +7,10 @@ interface VoiceConstructor {
   shape?: EnvelopeShape;
   attack?: number;
   decay?: number;
-  out_gain?: number;
+  outGain?: number;
   wave?: OscillatorType; // Osc waveshape
-  mod_idx?: number; // Modulation index/amount
-  mod_wave?: OscillatorType; // Modulation Osc waveshape
+  modIdx?: number; // Modulation index/amount
+  modWave?: OscillatorType; // Modulation Osc waveshape
   ratio?: number; // Primary - mod frequency ratio
 }
 
@@ -21,8 +21,8 @@ interface SynthConstructor extends VoiceConstructor {
 class FmVoice {
   private osc: OscillatorNode;
   private vca: GainNode;
-  private mod_osc: OscillatorNode;
-  private mod_vca: GainNode;
+  private modOsc: OscillatorNode;
+  private modVca: GainNode;
   private volume: GainNode;
 
   // Envelope
@@ -31,9 +31,9 @@ class FmVoice {
   private decay: number;
 
   //  Params
-  private mod_idx: number; // Modulation index
+  private modIdx: number; // Modulation index
   private ratio: number; // Fm ratio
-  private out_gain: number;
+  private outGain: number;
 
   constructor({
     ctx,
@@ -41,9 +41,9 @@ class FmVoice {
     wave,
     attack,
     decay,
-    out_gain,
-    mod_wave,
-    mod_idx,
+    outGain,
+    modWave,
+    modIdx,
     ratio,
   }: VoiceConstructor) {
     const osc = ctx.createOscillator();
@@ -53,22 +53,22 @@ class FmVoice {
     const vca = ctx.createGain();
     vca.gain.value = 0;
 
-    const mod_osc = ctx.createOscillator();
-    mod_osc.type = mod_wave ?? 'sine';
-    mod_osc.start();
+    const modOsc = ctx.createOscillator();
+    modOsc.type = modWave ?? 'sine';
+    modOsc.start();
 
-    this.mod_idx = mod_idx ?? 0.1;
-    const mod_vca = ctx.createGain();
-    mod_vca.gain.value = this.mod_idx;
+    this.modIdx = modIdx ?? 0.1;
+    const modVca = ctx.createGain();
+    modVca.gain.value = this.modIdx;
 
     osc.connect(vca);
 
-    mod_osc.connect(mod_vca);
-    mod_vca.connect(osc.frequency);
+    modOsc.connect(modVca);
+    modVca.connect(osc.frequency);
 
-    this.out_gain = out_gain ?? 0.5;
+    this.outGain = outGain ?? 0.5;
     const volume = ctx.createGain();
-    volume.gain.value = this.out_gain;
+    volume.gain.value = this.outGain;
 
     vca.connect(volume);
     volume.connect(ctx.destination);
@@ -77,8 +77,8 @@ class FmVoice {
 
     this.osc = osc;
     this.vca = vca;
-    this.mod_osc = mod_osc;
-    this.mod_vca = mod_vca;
+    this.modOsc = modOsc;
+    this.modVca = modVca;
     this.ratio = ratio ?? 2;
 
     this.shape = shape ?? 'linear';
@@ -94,7 +94,7 @@ class FmVoice {
 
   play(
     ctx: AudioContext,
-    { note, velocity, attack, decay, mod_idx }: NoteEvent,
+    { note, velocity, attack, decay, modIdx }: NoteEvent,
   ) {
     const primary_freq = this.midi_to_freq(note);
     const mod_freq = primary_freq * this.ratio;
@@ -103,24 +103,24 @@ class FmVoice {
     console.log(this.decay);
 
     this.osc.frequency.value = primary_freq;
-    this.mod_osc.frequency.value = mod_freq;
+    this.modOsc.frequency.value = mod_freq;
 
     this.vca.gain.linearRampToValueAtTime(
       velocity / 127,
       ctx.currentTime + this.attack,
     );
-    this.mod_vca.gain.linearRampToValueAtTime(
-      (velocity / 127) * mod_idx * 1000,
+    this.modVca.gain.linearRampToValueAtTime(
+      (velocity / 127) * modIdx * 1000,
       ctx.currentTime + this.attack,
     );
     this.vca.gain.linearRampToValueAtTime(0, ctx.currentTime + this.decay);
     if (this.shape === 'linear')
-      this.mod_vca.gain.linearRampToValueAtTime(
+      this.modVca.gain.linearRampToValueAtTime(
         0,
         ctx.currentTime + this.attack + this.decay,
       );
     else if (this.shape === 'exponential')
-      this.mod_vca.gain.exponentialRampToValueAtTime(
+      this.modVca.gain.exponentialRampToValueAtTime(
         1e-16,
         ctx.currentTime + this.attack + this.decay,
       );
@@ -132,7 +132,7 @@ interface NoteEvent {
   velocity: number; // Volume
   attack?: number;
   decay?: number;
-  mod_idx: number;
+  modIdx: number;
 }
 
 class VoiceManager {
@@ -162,7 +162,7 @@ export class FmSynth {
   constructor({ voices, ...rest }: SynthConstructor) {
     this.voices = Array(voices)
       .fill(0)
-      .map((_) => {
+      .map(_ => {
         return new FmVoice(rest);
       });
 
@@ -172,7 +172,7 @@ export class FmSynth {
   play(ctx: AudioContext, notes: NoteEvent | NoteEvent[]) {
     notes = Array.isArray(notes) ? notes : [notes];
     for (const note of notes) {
-      const LRU = this.manager.LRU ?? rand_int(0, this.voices.length);
+      const LRU = this.manager.LRU ?? randInt(0, this.voices.length);
       this.voices[LRU].play(ctx, note);
       this.manager.use(LRU);
     }
