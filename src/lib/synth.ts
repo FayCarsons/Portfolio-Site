@@ -162,7 +162,7 @@ export class FmSynth {
   constructor({ voices, ...rest }: SynthConstructor) {
     this.voices = Array(voices)
       .fill(0)
-      .map(_ => {
+      .map((_) => {
         return new FmVoice(rest);
       });
 

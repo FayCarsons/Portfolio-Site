@@ -15,6 +15,8 @@ import { initShaders } from '../../src/Sketches/clouds/main';
 import { range } from '../../src/lib/utilities';
 import { useParams } from '@solidjs/router';
 
+import { Home } from './Icons';
+
 let postCache: Post[] = [];
 
 export const titleToUrl = (title: string): string => {
@@ -91,6 +93,9 @@ const Articles = () => {
 
   return (
     <div class="m-0 flex h-screen w-screen items-center justify-center overflow-hidden p-0">
+      <a href="/">
+        <Home class="absolute left-2 top-2 z-10 stroke-white shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]" />
+      </a>
       <section
         aria-label="blog container"
         id="blog"

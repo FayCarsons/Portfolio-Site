@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
-import tailwind from 'tailwindcss'
+import solidSvg from 'vite-plugin-solid-svg'
 
 export default defineConfig({
-  plugins: [solid()],
+  plugins: [solid(), solidSvg()],
   server: {
     historyApiFallback: true,
   },

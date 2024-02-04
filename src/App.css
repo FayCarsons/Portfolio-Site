@@ -606,6 +606,10 @@ video {
   top: 50%;
 }
 
+.top-2 {
+  top: 0.5rem;
+}
+
 .-z-10 {
   z-index: -10;
 }
@@ -686,6 +690,10 @@ video {
   height: 100%;
 }
 
+.h-8 {
+  height: 2rem;
+}
+
 .w-3\/4 {
   width: 75%;
 }
@@ -712,6 +720,10 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.w-8 {
+  width: 2rem;
 }
 
 .-translate-y-1\/2 {
