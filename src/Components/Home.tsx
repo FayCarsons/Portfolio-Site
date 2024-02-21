@@ -1,14 +1,20 @@
-import { onMount } from 'solid-js';
-import { initShaders } from '../Sketches/clouds/main';
+import { onCleanup, onMount } from 'solid-js';
+import { initShaders, shaderCleanup } from '../Sketches/clouds/main';
 import { Github, Instagram, Twitter } from './Icons';
 
 const Home = () => {
-  onMount(initShaders);
+  onMount(() => {
+    initShaders();
+  });
+
+  onCleanup(() => {
+    shaderCleanup();
+  });
 
   return (
     <div class="m-0 overflow-hidden p-0">
-      <div id="app" class="flex h-screen w-screen flex-col">
-        <div class="z-10 m-0 flex h-screen w-screen flex-col items-center justify-center overflow-hidden p-0">
+      <div id="app" class="flex h-[100dvh] w-[100dvw] flex-col">
+        <div class="z-10 m-0 flex h-[100dvh] w-[100dvw] flex-col items-center justify-center overflow-hidden p-0">
           <h1
             id="name"
             class="aurora textstroke-3 mb-4 text-center text-7xl tracking-wider text-transparent"
@@ -59,7 +65,7 @@ const Home = () => {
       </div>
       <canvas
         id="canvas"
-        class="absolute inset-0 z-0 m-0 h-[100dvh] w-[100dvw] p-0"
+        class="absolute inset-0 -z-10 m-0 h-[100dvh] w-[100dvw]"
       ></canvas>
     </div>
   );

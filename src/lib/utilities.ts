@@ -1,10 +1,13 @@
 type TouchCallback = (event: TouchEvent) => void;
 
 // EVENT HANDLER FNS
-export function addScrollCallback(callback: (event: WheelEvent) => void) {
+export const addScrollCallback = (callback: (event: WheelEvent) => void) => {
   document.addEventListener('wheel', callback, { passive: true });
-}
+};
 
+export const removeScrollCallback = (callback: (event: WheelEvent) => void) => {
+  document.removeEventListener('wheel', callback);
+};
 export const event_xy = (event: TouchEvent): [number, number] => {
   return [
     event.touches[0].clientX / window.innerWidth,
@@ -12,20 +15,24 @@ export const event_xy = (event: TouchEvent): [number, number] => {
   ];
 };
 
-export const addTouchstartCallback = (
-  target: HTMLElement,
-  callback: TouchCallback,
-) => {
-  target.addEventListener('touchstart', callback, { passive: false });
-};
-
 export const addTouchCallbacks = (
   target: HTMLElement,
   touchstart_callback: TouchCallback,
   touchmove_callback: TouchCallback,
 ) => {
-  addTouchstartCallback(target, touchstart_callback);
+  target.addEventListener('touchstart', touchstart_callback, {
+    passive: false,
+  });
   target.addEventListener('touchmove', touchmove_callback, { passive: false });
+};
+
+export const removeTouchCallbacks = (
+  target: HTMLElement,
+  touchstartCallback: TouchCallback,
+  touchmoveCallback: TouchCallback,
+) => {
+  target.removeEventListener('touchstart', touchstartCallback);
+  target.removeEventListener('touchmove', touchmoveCallback);
 };
 
 // ???
@@ -106,3 +113,6 @@ export const take = <T>(n: number, coll: T[]): T[] => {
 export const drop = <T>(n: number, coll: T[]): T[] => {
   return coll.slice(n);
 };
+
+export const inc = (n: number) => n + 1;
+export const dec = (n: number) => n - 1;

@@ -15,7 +15,7 @@ import {
 } from 'twgl.js';
 import { canvasResolution } from './context';
 
-export type Uniforms = { [key: string]: number | number[] | number[][] };
+export type Uniforms = Record<string, number | number[] | number[][]>;
 
 interface Target {
   framebuffer: FramebufferInfo;
@@ -61,7 +61,7 @@ export const createShader = (
     };
     instance_data = { ...fullscreen_triangle_buffer, ...data };
   } else {
-    if (!data) throw new Error('Vert shaders requires vertex data');
+    if (!data) throw new Error('Vert shaders require vertex data');
     instance_data = data;
   }
   const instance_uniforms = uniforms || { size: canvasResolution(gl) };

@@ -7,15 +7,16 @@ import {
   createEffect,
   createResource,
   createSignal,
+  onCleanup,
   onMount,
 } from 'solid-js';
 import { posts, Post } from '../lib/posts';
 import { Blog } from './Blog';
-import { initShaders } from '../../src/Sketches/clouds/main';
-import { range } from '../../src/lib/utilities';
+import { initShaders, shaderCleanup } from '../../src/Sketches/clouds/main';
+import { dec, inc, range } from '../../src/lib/utilities';
 import { useParams } from '@solidjs/router';
 
-import { Home } from './Icons';
+import { Home, LeftChevron, RightChevron } from './Icons';
 
 let postCache: Post[] = [];
 
@@ -61,19 +62,30 @@ const cachePosts = async (idx: number) => {
 
 // Creates onClick fn for nav buttons
 const enum Direction {
-  Left = -1,
-  Right = 1,
+  Left,
+  Right,
 }
+
+const dirToFn = {
+  [Direction.Left]: dec,
+  [Direction.Right]: inc,
+};
 
 type MaybePost = Post | null | Error;
 
 const createPostNav = (setIndex: Setter<number>, dir: Direction) => {
-  return async (_: UIEvent) => {
-    setIndex((idx) => boundIdx(idx + dir));
-  };
+  return async (_: UIEvent) => setIndex((idx) => boundIdx(dirToFn[dir](idx)));
 };
+const chevronClass = 'h-6 w-6 text-white';
 
 const Articles = () => {
+  onMount(() => {
+    initShaders();
+  });
+  onCleanup(() => {
+    shaderCleanup();
+  });
+
   const { title } = useParams();
   const [idx, setIdx] = createSignal<number>(0);
 
@@ -87,77 +99,51 @@ const Articles = () => {
     cachePosts(idx());
   }, idx());
 
-  onMount(() => {
-    initShaders();
-  });
-
   return (
-    <div class="m-0 flex h-screen w-screen items-center justify-center overflow-hidden p-0">
-      <a href="/">
-        <Home class="absolute left-2 top-2 z-10 stroke-white shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]" />
-      </a>
-      <section
-        aria-label="blog container"
-        id="blog"
-        class="z-10 h-5/6 w-3/4 overflow-y-scroll rounded-sm bg-gray-50 p-4 shadow-lg"
-      >
-        <Switch>
-          <Match when={!post()}>
-            <div class="animate-bounce"></div>
-          </Match>
-          <Match when={post() instanceof Error}>
-            <Err />
-          </Match>
-          <Match when={post()}>
-            <Blog post={post() as Post}></Blog>
-          </Match>
-        </Switch>
-      </section>
-
-      <button
-        onClick={createPostNav(setIdx, Direction.Left)}
-        class="absolute left-2 top-1/2 z-10 -translate-y-1/2 transform p-2"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          class="h-6 w-6 text-white"
+    <>
+      <div class="m-0 flex h-[100dvh] w-[100dvw] items-center justify-center overflow-hidden p-0">
+        <a href="/">
+          <Home class="absolute left-2 top-2 z-10 stroke-white shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]" />
+        </a>
+        <section
+          aria-label="blog post"
+          id="blog"
+          class="z-10 h-5/6 w-3/4 overflow-y-scroll rounded-sm bg-gray-50 p-4 shadow-lg"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
+          <Switch>
+            <Match when={!post()}>
+              <div class="animate-pulse"></div>
+            </Match>
+            <Match when={post() instanceof Error}>
+              <Err />
+            </Match>
+            <Match when={post()}>
+              <Blog post={post() as Post}></Blog>
+            </Match>
+          </Switch>
+        </section>
 
-      <button
-        onClick={createPostNav(setIdx, Direction.Right)}
-        class="absolute right-2 top-1/2 z-10 -translate-y-1/2 transform p-2"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          class="h-6 w-6 text-white"
+        <button
+          aria-label="Last blog post"
+          onClick={createPostNav(setIdx, Direction.Left)}
+          class="absolute left-2 top-1/2 z-10 -translate-y-1/2 transform p-2"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
+          <LeftChevron class={chevronClass} />
+        </button>
+
+        <button
+          aria-label="Next blog post"
+          onClick={createPostNav(setIdx, Direction.Right)}
+          class="absolute right-2 top-1/2 z-10 -translate-y-1/2 transform p-2"
+        >
+          <RightChevron class={chevronClass} />
+        </button>
+      </div>
       <canvas
         id="canvas"
-        class="absolute -z-10 m-0 h-[100dvh] w-[100dvw] p-0"
-      ></canvas>
-    </div>
+        class="absolute inset-0 -z-10 m-0 h-[100dvh] w-[100dvw]"
+      />
+    </>
   );
 };
 

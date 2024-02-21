@@ -11,14 +11,12 @@ export const createContext = (
   }
 
   gl.clearColor(255, 255, 255, 255);
-  gl.getExtension('OES_texture_float');
   return gl;
 };
 
 export const maximizeCanvas = (gl: WebGL2RenderingContext) => {
-  let [width, height] = [window.innerWidth, window.innerHeight];
-  gl.canvas.width = width;
-  gl.canvas.height = height;
+  gl.canvas.width = window.innerWidth;
+  gl.canvas.height = window.innerHeight;
 };
 
 export const setTarget = (gl: WebGL2RenderingContext, shader: Shader) => {
