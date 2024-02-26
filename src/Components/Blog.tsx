@@ -1,4 +1,3 @@
-import { createEffect, createSignal } from 'solid-js';
 import { Post } from '../lib/posts';
 
 export type BlogProps = {
@@ -9,7 +8,7 @@ const infoClass = 'font-mono text-gray-500 text-xs mb-2';
 
 export const Blog = ({ post }: BlogProps) => {
   return (
-    <section>
+    <section aria-roledescription='Blog post'>
       <div aria-roledescription="header" innerHTML={post.header} />
       <p class={infoClass}>{post.date}</p>
       <p class={infoClass}>Fay Carsons</p>

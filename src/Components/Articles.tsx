@@ -14,7 +14,7 @@ import { posts, Post } from '../lib/posts';
 import { Blog } from './Blog';
 import { initShaders, shaderCleanup } from '../../src/Sketches/clouds/main';
 import { dec, inc, range } from '../../src/lib/utilities';
-import { useParams } from '@solidjs/router';
+import { useNavigate, useParams } from '@solidjs/router';
 
 import { Home, LeftChevron, RightChevron } from './Icons';
 
@@ -25,9 +25,9 @@ export const titleToUrl = (title: string): string => {
 };
 
 // Fetches post from URL in posts[i]
-const fetchPost = async (idx: number): Promise<Post> => {
+const fetchPost = async (idx: number, opt?: any): Promise<Post> => {
   if (postCache[idx]) {
-    return postCache[idx];
+    return Promise.resolve(postCache[idx]);
   } else {
     const url = titleToUrl(posts[idx]);
     const req = await fetch(url);
@@ -61,7 +61,7 @@ const cachePosts = async (idx: number) => {
 };
 
 // Creates onClick fn for nav buttons
-const enum Direction {
+enum Direction {
   Left,
   Right,
 }
@@ -70,8 +70,6 @@ const dirToFn = {
   [Direction.Left]: dec,
   [Direction.Right]: inc,
 };
-
-type MaybePost = Post | null | Error;
 
 const createPostNav = (setIndex: Setter<number>, dir: Direction) => {
   return async (_: UIEvent) => setIndex((idx) => boundIdx(dirToFn[dir](idx)));
@@ -82,22 +80,30 @@ const Articles = () => {
   onMount(() => {
     initShaders();
   });
+
   onCleanup(() => {
     shaderCleanup();
   });
 
   const { title } = useParams();
+  const navigator = useNavigate();
   const [idx, setIdx] = createSignal<number>(0);
 
-  if (title) {
-    setIdx(posts.indexOf(title));
-  }
+  createEffect(() => {
+    if (title) {
+      setIdx(posts.indexOf(title));
+    }
+  }, title);
 
-  const [post] = createResource(idx(), fetchPost);
+  const [post] = createResource(idx, fetchPost);
 
   createEffect(() => {
     cachePosts(idx());
-  }, idx());
+    if (window.location.pathname === '/articles')
+      navigator(`${window.location.pathname}#${posts[idx()]}`, {
+        replace: true,
+      });
+  }, idx);
 
   return (
     <>
@@ -111,14 +117,14 @@ const Articles = () => {
           class="z-10 h-5/6 w-3/4 overflow-y-scroll rounded-sm bg-gray-50 p-4 shadow-lg"
         >
           <Switch>
-            <Match when={!post()}>
+            <Match when={post.loading}>
               <div class="animate-pulse"></div>
             </Match>
-            <Match when={post() instanceof Error}>
+            <Match when={post.error}>
               <Err />
             </Match>
-            <Match when={post()}>
-              <Blog post={post() as Post}></Blog>
+            <Match when={post.latest}>
+              <Blog post={post.latest as Post}></Blog>
             </Match>
           </Switch>
         </section>

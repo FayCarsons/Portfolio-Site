@@ -15,7 +15,7 @@ while functional languages, for the most part, have not.
 
 When I was offered the opportunity to intern for [Tarides](https://tarides.com),
 building a creative coding library that would be designed with computer science
-education in mind, I accepted.
+education in mind, I happily accepted.
 
 ## Joy
 
@@ -110,6 +110,4 @@ good then I think OCaml is our best bet. Additionally, that immediacy that is so
 necessary for newcomers can be provided by creative coding. And luckily, FP suits 
 creative coding to a truly impressive degree. So it follows that the right OCaml 
 creative coding library could be an invaluable tool for teaching FP to a new
-generation of programmers. 
-
-I hope that `Joy` can be that.
+generation of programmers. This is my goal with `Joy`.

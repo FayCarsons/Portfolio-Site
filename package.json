@@ -13,6 +13,7 @@
     "deploy": "npm run build && scp -r ./dist 6nosis@kiggyserve.local:/var/www/faycarsons"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "glob": "^10.3.10",
     "html-minifier": "^4.0.0",
     "marked": "^11.1.0",
