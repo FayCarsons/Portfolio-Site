@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "clear && vite",
-    "prebuild": "./dev/scripts/blog-parser -i ./markdown -o ./public/json -r ./classes.json --js ./src/lib",
+    "prebuild": "./dev/scripts/blog-parser -i ./markdown -o ./public/json -r ./classes.json --js ./src/lib && echo \"converted markdown to html!\"",
     "build": "clear && vite build",
     "preview": "clear && vite preview",
     "tailwind": "npx tailwindcss -i ./style.css -o ./src/App.css --watch",

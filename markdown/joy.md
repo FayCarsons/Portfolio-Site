@@ -3,24 +3,24 @@ Date: February 20, 2024
 # Developing a functional creative coding library in OCaml
 
 I have taken a unique path during my short time as a developer. Beginning with
-Clojure, with which I mostly wrote [Shadertoy](shadertoy.com) style shader
+Clojure, with which I mostly wrote [Shadertoy](https://shadertoy.com) style shader
 sketches, then moving onto performance-focused image processing apps in Rust,
 and now MLs: I have felt lost, confounded, or otherwise confused at many points.
+
 The resources for absolute beginners in these spaces are few and far between.
-It's generally accepted that these are 'hard' languages (something I don't agree
+It's generally accepted that these are 'hard' languages (which I don't agree
 with) and that people who are brand new to computer science should start with
 imperative languages like Python or Javascript. This has always been frustrating
-to me, as I feel it is likely the cause for these languages achieving ubiquity
+to me, as I feel it is likely responsible for these languages achieving ubiquity
 while functional languages, for the most part, have not.
 
-When I was offered the opportunity to intern for [Tarides](https://tarides.com),
-building a creative coding library that would be designed with computer science
-education in mind, I happily accepted.
+When I was offered the opportunity to intern for [Tarides](https://tarides.com), building a creative 
+coding library that would be designed with computer science education in mind, 
+I was very excited to explore this.
 
 ## Joy
 
-That library is [Joy](https://github.com/Sudha247/ocaml-joy), inspired by the
-[Python library](https://github.com/fossunited/joy) of the same name. An SVG
+That library is [Joy](https://github.com/Sudha247/ocaml-joy), inspired by the [Python library](https://github.com/fossunited/joy) of the same name. An SVG
 rendering library with a focus on simplicity, composability, and elegance.
 While the original Python library had a functional style to it, translating it
 to OCaml gave me a unique opportunity to demonstrate the degree to which FP
@@ -29,26 +29,33 @@ suits generative art.
 There was only bare-bone scaffolding in place when I joined the team. A few
 geometric types, a `shape` variant type for polymorphism, and a simple
 `Stdlib.Graphics` backend. This period of development offered some challenges.
+
 The `Graphics` backend used the [X window system](https://en.wikipedia.org/wiki/X_Window_System),
 which had known vulnerabilities (with some being 20+ years old!), had an awkward
-interface (resolution had to be passed as a string?), and, worst of all, the
-entire window process had to be started and then killed and restarted every time
+interface (resolution had to be passed as a string??), and, most bothersome of all,
+the entire window process had to be started and then killed and restarted every time
 you wanted to change your sketch and view the new output. This made iteration
 awkward and much more time-consuming than it needed to be.
 
-Nevertheless, I quickly began working through the roadmap adding new primitives,
+Regardless, I quickly began working through the roadmap adding new primitives,
 transformations like `rotate`, and essential features like variable canvas size
-and the ability to render the axes as lines for debugging. The recursion-heavy
+and the ability to render the axes for debugging. The recursion-heavy
 style that OCaml steers you towards was, initially, disorienting for me. The
-lack of utilities like Clojure's `range`, `take`, and `comp` was frustrating and
+lack of utilities like Clojure's `range`, `take`, and `comp` was confusing and
 I did have to lean on ChatGPT to give me a starting point to work from on more
 than one occasion.
 
+I trudged on, putting in plenty of PRs and generally enjoying a level of productivity
+I found very satisfying. I would have discussions with my roommate, a Clojure dev,
+"Can you believe OCaml doesn't have *feature*!? Why would you do *x* in *y* way??".
+This continued for maybe the first month of my internship until one day, I
+stumbled upon [99 OCaml Problems](https://v2.ocaml.org/learn/tutorials/99problems.html) and everything clicked for me.
+The terse, tail-call optimized recursive style sort of revealed itself and I felt like I understood it all.
+
 By the time we had cemented the final API and the library had the ability to
-handle more complex algorithms like [circle packing](https://en.wikipedia.org/wiki/Circle_packing)
-and [flow-fields](https://en.wikipedia.org/wiki/Vector_field), I noticed
-something interesting, there was *no mutability* in the entire library. Aside
-from some behind-the-scenes state management that (I assume) was taking place in
+handle more complex algorithms like [circle packing](https://en.wikipedia.org/wiki/Circle_packing) and [flow-fields](https://en.wikipedia.org/wiki/Vector_field), I noticed
+something else I found interesting, there was *no mutability* in the entire library. 
+Aside from some behind-the-scenes state management that (I assume) was taking place in
 the `Graphics` module, which we hadn't touched, there were no `ref` types, or
 internally mutable data structures, just pure functions mapping from one
 primitive to another.
@@ -84,7 +91,7 @@ circuited by using a fold-like recursive function as opposed to the `reduce` or
 `fold` I had initially used (both in my first OCaml draft and Clojure). The 
 quadtree example was made very simple with OCaml's variant types, something I 
 had no experience with prior, and am now in love with. Writing tree algorithms in 
-Clojure is a nightmare of `NullPointerException`s, and a constant fight with the 
+Clojure is a nightmare of `NullPointerException`, and a constant fight with the 
 borrow checker in Rust. OCaml turned that into a single match block of 
 `Node | Leaf`. The flowfield example is a mapping from an array of smooth noise 
 values to an array of lines.
