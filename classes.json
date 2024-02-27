@@ -12,7 +12,9 @@
     "class": "font-mono text-sm my-2 mx-auto block p-4 bg-gray-300 rounded-sm overflow-auto whitespace-pre"
   },
   "a": {
-    "class": "font-mono underline hover:text-stone-600 transition duration-300 ease-in-out"
+    "class": "font-mono underline hover:text-stone-600 transition duration-300 ease-in-out",
+    "target": "_blank",
+    "rel": "noopener noreferrer"
   },
   "p": {
     "class": "font-mono text-sm my-4 mx-auto"
