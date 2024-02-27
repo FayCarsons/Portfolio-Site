@@ -10,7 +10,7 @@
     "preview": "clear && vite preview",
     "tailwind": "npx tailwindcss -i ./style.css -o ./src/App.css --watch",
     "fmt": "npx prettier ./src/**/* --single-quote -w --plugin prettier-plugin-tailwindcss",
-    "deploy": "npm run build && scp -r ./dist 6nosis@kiggyserve.local:/var/www/faycarsons"
+    "deploy": "npm run build && rsync -avz --delete ./dist/ 6nosis@kiggyserve.local:/var/www/faycarsons/"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
