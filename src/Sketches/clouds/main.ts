@@ -33,7 +33,6 @@ let gl: WebGL2RenderingContext;
 let frameID: number;
 
 export function initShaders() {
-  console.log('REINITIALIZING!!!');
   const canvas: HTMLCanvasElement = document.getElementById(
     'canvas',
   ) as HTMLCanvasElement;
@@ -97,7 +96,6 @@ export const shaderCleanup = () => {
   SCROLL = [0, 0];
   SCROLL_START = [0, 0];
   cancelAnimationFrame(frameID);
-  console.log('DELETING OBJECTS');
   return;
 };
 
@@ -122,7 +120,7 @@ const scrollCallback = (event: WheelEvent) => {
   ];
 };
 
-const resizeHandler = function (_: UIEvent) {
+const resizeHandler = function(_: UIEvent) {
   const resolution: [number, number] = [window.innerWidth, window.innerHeight];
   worley = resetUniforms(worley, { ...worley.uniforms, resolution });
   maximizeCanvas(gl);
