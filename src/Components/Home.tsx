@@ -45,18 +45,21 @@ const Home = () => {
         >
           <a
             class="mx-6 block w-4 stroke-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+            aria-label="Link to Fay Carson's Instagram"
             href="https://instagram.com/faycarsons"
           >
             <Instagram class="h-8 w-8 stroke-white" />
           </a>
           <a
             class="mx-6 block w-4 stroke-white shadow-white blur-0 drop-shadow-sm transition duration-200 ease-in hover:blur-[1px]"
+            aria-label="Link to Fay Carson's Twitter"
             href="https://twitter.com/fay_carsons"
           >
             <Twitter class="h-8 w-8 stroke-white" />
           </a>
           <a
             class="text-shadow mx-6 block w-4 stroke-white shadow-white blur-0 transition duration-200 ease-in hover:blur-[1px]"
+            aria-label="Link to Fay Carson's Github"
             href="https://github.com/faycarsons"
           >
             <Github class="h-8 w-8 stroke-white" />
