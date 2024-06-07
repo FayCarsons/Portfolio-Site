@@ -33,6 +33,7 @@
   "sideEffects": [],
   "dependencies": {
     "@solidjs/router": "^0.11.3",
+    "metrics": "file:../../typescript/metrics",
     "solid-js": "^1.8.12",
     "twgl.js": "^5.5.3"
   }
