@@ -27,3 +27,7 @@ out.css
 */package-lock.json
 
 /public/json
+blog-parser/dist-newstyle
+backend/target
+blog-parser/test/*
+blog-parser/test

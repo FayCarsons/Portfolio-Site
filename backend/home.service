@@ -1,0 +1,11 @@
+[Unit]
+Description=Static File Server
+After=network.target
+
+[Service]
+ExecStart=/etc/home/home
+Restart=always
+User=6nosis
+
+[Install]
+WantedBy=multi-user.target

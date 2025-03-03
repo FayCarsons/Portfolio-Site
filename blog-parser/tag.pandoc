@@ -1,0 +1,26 @@
+<header>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/tags">Tags</a>
+  </nav>
+</header>
+<main>
+  <h1>$tagOrCategory$$tagOrCategoryElement$</h1>
+  <p>$postCount$ posts with this $tagOrCategory$</p>
+  <div class="post-list">
+  $for(posts)$
+  <article class="post-preview">
+    <h2><a href="$posts.slug$">$posts.title$</a></h2>
+    <div class="post-meta">
+      <time datetime="$posts.date$">$posts.date$</time>
+    </div>
+    <div class="post-excerpt">
+      $posts.preview$
+    </div>
+  </article>
+  $endfor$
+  </div>
+</main>
+<footer>
+  <p>&copy; $year$ $siteName$</p>
+</footer>

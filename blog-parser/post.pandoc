@@ -1,0 +1,12 @@
+<article class="post-summary">
+  <h2 class="post-title">$title$</h2>
+  <div class="post-metadata">
+    $if(date)$
+    <time datetime="$date$" class="post-date">$date$</time>
+    $endif$
+    <span class="post-author">Fay Carsons</span>
+  </div>
+  <div id="article-container">
+    $body$
+  </div>
+</article>
