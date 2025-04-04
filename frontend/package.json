@@ -1,39 +1,28 @@
 {
-  "name": "pi-portfolio",
+  "name": "portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "clear && vite",
-    "build": "clear && vite build",
-    "fmt": "npx prettier ./src/**/* --single-quote -w --plugin prettier-plugin-tailwindcss",
-    "deploy": "npm run build && rsync -avz --delete ./dist/ 6nosis@kiggyserve.local:/var/www/faycarsons/"
+    "res:build": "rescript",
+    "res:clean": "rescript clean",
+    "res:dev": "rescript -w",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@rescript/core": "^1.6.1",
+    "@rescript/react": "^0.12.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rescript": "^11.1.4"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.10",
-    "glob": "^10.3.10",
-    "html-minifier": "^4.0.0",
-    "marked": "^11.1.0",
-    "prettier": "^3.2.4",
-    "prettier-plugin-tailwindcss": "^0.5.11",
-    "purgecss": "^5.0.0",
-    "tailwindcss": "^3.3.6",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.0",
-    "vite-plugin-glsl": "^1.2.0",
-    "vite-plugin-minify": "^1.5.2",
-    "vite-plugin-singlefile": "^0.13.5",
-    "vite-plugin-solid": "^2.9.1",
-    "vite-plugin-solid-svg": "^0.8.0",
-    "webpack-cli": "^5.1.4"
-  },
-  "sideEffects": [],
-  "dependencies": {
-    "@solidjs/router": "^0.11.3",
-    "highlight.js": "^11.10.0",
-    "jsdom": "^25.0.1",
-    "metrics": "file:../../typescript/metrics",
-    "solid-js": "^1.8.12",
-    "twgl.js": "^5.5.3"
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.28",
+    "tailwindcss": "^3.3.3",
+    "vite": "^5.0.6"
   }
 }
