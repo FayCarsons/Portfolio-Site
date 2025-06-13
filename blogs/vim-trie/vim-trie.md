@@ -8,7 +8,7 @@ category: Programming
 I love working with trees. There's something very satisfying about recursive 
 tree traversals - the way they naturally break down complex problems into simple
 solutions. I've found this to be true in almost every language I've used 
-(even Rust...sometimes), but MLs like Haskell and OCaml lend themselves to this 
+but MLs like Haskell and OCaml lend themselves to this 
 particularly well.
 
 So when I found myself building an app with Vim-inspired key bindings in OCaml, I 
