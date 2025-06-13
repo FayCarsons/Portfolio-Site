@@ -1,16 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ReScript + Vite + React</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fay Carsons</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
-
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/Main.res.mjs"></script>
-</body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="bento-box hero">
+            <h1>Fay Carsons</h1>
+            <p>Functional programmer</p>
+        </div>
 
+        <!-- Small decorative boxes -->
+        <div class="bento-box small shader-box">
+            <div class="shader-noise"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-scan"></div>
+        </div>
+
+        <!-- Experience Section -->
+        <div class="bento-box experience">
+            <h2>Experience</h2>
+            <div class="experience-item">
+                <h3>Senior Frontend Developer</h3>
+                <div class="company">Tech Corp • 2022-Present</div>
+                <p>Leading frontend architecture and mentoring junior developers on modern web technologies.</p>
+            </div>
+            <div class="experience-item">
+                <h3>Full Stack Developer</h3>
+                <div class="company">Startup Inc • 2020-2022</div>
+                <p>Built scalable web applications using React, Node.js, and cloud infrastructure.</p>
+            </div>
+            <div class="experience-item">
+                <h3>Software Engineer</h3>
+                <div class="company">Digital Agency • 2018-2020</div>
+                <p>Developed responsive websites and web applications for diverse client portfolio.</p>
+            </div>
+        </div>
+
+        <!-- Small decorative boxes -->
+        <div class="bento-box small shader-box">
+            <div class="shader-wave"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-bars">
+                <div class="shader-bar"></div>
+                <div class="shader-bar"></div>
+                <div class="shader-bar"></div>
+                <div class="shader-bar"></div>
+                <div class="shader-bar"></div>
+            </div>
+        </div>
+
+        <!-- Projects Gallery -->
+        <div class="bento-box projects-gallery">
+            <h2>Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-preview neural-network">
+                        <div class="network-node"></div>
+                        <div class="network-node"></div>
+                        <div class="network-node"></div>
+                        <div class="connection"></div>
+                        <div class="connection"></div>
+                    </div>
+                    <div class="project-info">
+                        <h3>Neural Network Visualizer</h3>
+                        <span class="tech">WebGL • TypeScript</span>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-preview task-manager">
+                        <div class="task-item"></div>
+                        <div class="task-item completed"></div>
+                        <div class="task-item"></div>
+                        <div class="task-status"></div>
+                    </div>
+                    <div class="project-info">
+                        <h3>Distributed Task Manager</h3>
+                        <span class="tech">React • Node.js</span>
+                    </div>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-preview shader-playground">
+                        <div class="shader-grid-mini"></div>
+                        <div class="code-overlay">
+                            <span>float time = u_time;</span>
+                            <span>vec3 color = mix(a, b, t);</span>
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <h3>Shader Playground</h3>
+                        <span class="tech">WebGL • GLSL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- More small decorative boxes -->
+        <div class="bento-box small shader-box">
+            <div class="shader-pulse"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-matrix">
+                01001000<br>
+                01101100<br>
+                01101111<br>
+                01010111
+            </div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-grid"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-flicker"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-circuit"></div>
+        </div>
+
+        <div class="bento-box small shader-box">
+            <div class="shader-static"></div>
+        </div>
+    </div>
+
+    <script src='./src/main.ts' type='module'></script>
+</body>
 </html>
