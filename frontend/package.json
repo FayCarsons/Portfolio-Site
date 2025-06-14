@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cd ../blog-parser && cabal build && cabal exec blog-parser -- -t ../blogs -o ../frontend -j ../frontend",
     "preview": "vite preview"
   },
   "devDependencies": {
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "twgl.js": "^6.1.1"
   }
 }

@@ -1,36 +1,47 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
-
+{-# LANGUAGE RankNTypes        #-}
 module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview) where
 
-import Control.Monad (filterM, (>=>))
-import Data.Either (fromRight)
-import Data.Functor ((<&>))
-import qualified Data.Map as Map
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.Text (Text)
-import qualified Data.Text as Text
-import Data.Time (Day)
-import qualified Data.Time as Time
-
+import           Control.Monad                (filterM, (>=>))
+import           Data.Either                  (fromRight)
+import           Data.Functor                 ((<&>))
+import qualified Data.Map                     as Map
+import           Data.Set                     (Set)
+import qualified Data.Set                     as Set
+import           Data.Text                    (Text)
+import qualified Data.Text                    as Text
+import           Data.Time                    (Day)
+import qualified Data.Time                    as Time
 -- Paths
-import System.Directory (doesDirectoryExist, listDirectory)
-import System.FilePath ((</>))
-import qualified System.FilePath as Path
-import System.FilePattern.Directory (getDirectoryFiles)
-
+import           System.Directory             (doesDirectoryExist,
+                                               listDirectory)
+import qualified System.FilePath              as Path
+import           System.FilePath              ((</>))
+import           System.FilePattern.Directory (getDirectoryFiles)
 -- Pandoc
 
-import Text.Pandoc (Block (..), Template, compileTemplate, getTemplate, nullMeta, runIO, runPure, writePlain)
-import Text.Pandoc.Builder (MetaValue (..), ToMetaValue (..))
-import Text.Pandoc.Definition (Inline (..), Meta (..), Pandoc (..), lookupMeta)
-import Text.Pandoc.Extensions (Extension (..), enableExtension, pandocExtensions)
-import Text.Pandoc.Highlighting (pygments)
-import Text.Pandoc.Options (HTMLMathMethod (..), def, readerExtensions, writerExtensions, writerHTMLMathMethod, writerHighlightStyle, writerTemplate, writerVariables)
-import Text.Pandoc.Readers.Markdown (readMarkdown)
-import Text.Pandoc.Writers.HTML (writeHtml5String)
+import           Data.Aeson                   (ToJSON)
+import           GHC.Generics                 (Generic)
+import           Text.Pandoc                  (Block (..), Template,
+                                               compileTemplate, getTemplate,
+                                               nullMeta, runIO, runPure,
+                                               writePlain)
+import           Text.Pandoc.Builder          (MetaValue (..), ToMetaValue (..))
+import           Text.Pandoc.Definition       (Inline (..), Meta (..),
+                                               Pandoc (..), lookupMeta)
+import           Text.Pandoc.Extensions       (Extension (..), enableExtension,
+                                               pandocExtensions)
+import           Text.Pandoc.Highlighting     (pygments)
+import           Text.Pandoc.Options          (HTMLMathMethod (..), def,
+                                               readerExtensions,
+                                               writerExtensions,
+                                               writerHTMLMathMethod,
+                                               writerHighlightStyle,
+                                               writerTemplate)
+import           Text.Pandoc.Readers.Markdown (readMarkdown)
+import           Text.Pandoc.Writers.HTML     (writeHtml5String)
 
 data Error
   = MissingFrontmatter FilePath Text
@@ -51,7 +62,7 @@ instance Show Error where
   show (Template cause) = "[Blog parser]: Cannot create template: " <> show cause
 
 toEither :: Error -> Maybe a -> Either Error a
-toEither _ (Just x) = Right x
+toEither _ (Just x)  = Right x
 toEither err Nothing = Left err
 
 lookupEither :: Error -> Text -> Meta -> Either Error MetaValue
@@ -59,61 +70,67 @@ lookupEither err key meta = toEither err $ lookupMeta key meta
 
 data Post
   = Post
-  { content :: [Block]
-  , meta :: PostMeta
+  { content :: [Block],
+    meta    :: PostMeta
   }
   deriving (Show)
 
 data PostMeta
   = PostMeta
-  { title :: Text
-  , tags :: Set Text
-  , category :: Text
-  , date :: Day
-  , slug :: Text
-  , path :: FilePath
+  { title    :: Text,
+    tags     :: Set Text,
+    category :: Text,
+    date     :: Day,
+    slug     :: Text,
+    path     :: FilePath
   }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Generic)
+
+instance ToJSON PostMeta
 
 instance Ord PostMeta where
   compare a b = compare (date a) (date b)
 
 instance ToMetaValue PostMeta where
-  toMetaValue Post.PostMeta{Post.title, Post.tags, Post.category, Post.date, Post.slug, Post.path} =
+  toMetaValue Post.PostMeta {Post.title, Post.tags, Post.category, Post.date, Post.slug, Post.path} =
     MetaMap $
       Map.fromList
-        [ ("title", toMetaValue title)
-        , ("tags", MetaList $ map toMetaValue $ Set.toList tags)
-        , ("category", toMetaValue category)
-        , ("date", toMetaValue $ show date)
-        , ("slug", toMetaValue slug)
-        , ("path", toMetaValue path)
+        [ ("title", toMetaValue title),
+          ("tags", MetaList $ map toMetaValue $ Set.toList tags),
+          ("category", toMetaValue category),
+          ("date", toMetaValue $ show date),
+          ("slug", toMetaValue slug),
+          ("path", toMetaValue path)
         ]
 
 preview :: Post -> Text
 preview Post{content} =
   case content of
-    openingParagraph : _ -> flip (<>) "..." $ fromRight "" $ runPure $ writePlain def (Pandoc nullMeta [openingParagraph])
+    openingParagraph : _ ->
+      (<>) "..."
+        $ fromRight (error "impossible!")
+        $ runPure
+        $ writePlain def (Pandoc nullMeta [openingParagraph])
     _ -> ""
 
 plainText :: MetaValue -> Text
 plainText (MetaString s) = s
 plainText (MetaInlines xs) = Text.concat $ map fromInline xs
- where
-  fromInline :: Inline -> Text
-  fromInline (Str s) = s
-  fromInline Space = " "
-  fromInline _ = ""
+  where
+    fromInline :: Inline -> Text
+    fromInline (Str s) = s
+    fromInline Space   = " "
+    fromInline _       = ""
 plainText _ = ""
 
 parseDate :: FilePath -> Text -> Either Error Day
 parseDate path date =
   case Time.parseTimeM True Time.defaultTimeLocale "%m-%d-%Y" (Text.unpack date) of
-    Nothing -> Left $ ParseError path "Failed to parse date"
+    Nothing  -> Left $ ParseError path "Failed to parse date"
     Just day -> Right day
 
 mapLeft :: forall a b c. (a -> b) -> Either a c -> Either b c
-mapLeft f (Left e) = Left $ f e
+mapLeft f (Left e)  = Left $ f e
 mapLeft _ (Right x) = Right x
 
 parseMeta :: FilePath -> Meta -> [Block] -> Either Error Post
@@ -124,12 +141,12 @@ parseMeta path meta content = do
   category <- plainText <$> lookupEither (MissingFrontmatter path "No category") "category" meta
   return $
     Post
-      { content
-      , meta =
-          PostMeta{tags, category, date, path, title, slug}
+      { content,
+        meta =
+          PostMeta {tags, category, date, path, title, slug}
       }
- where
-  slug = Text.pack $ Path.takeBaseName path
+  where
+    slug = Text.pack $ Path.takeBaseName path
 
 parsePost :: FilePath -> IO (Either Error Post)
 parsePost path = do
@@ -137,23 +154,25 @@ parsePost path = do
   case content of
     Left e -> return $ Left $ ParseError path (Text.pack $ show e)
     Right (Pandoc meta blocks) -> do
-      return (parseMeta path meta blocks)
- where
-  readerOpts = def{readerExtensions = enableExtension Ext_yaml_metadata_block pandocExtensions}
+      return $ parseMeta path meta blocks
+  where
+    readerOpts = def {readerExtensions = enableExtension Ext_yaml_metadata_block pandocExtensions}
 
 findPost :: FilePath -> IO (Either Error FilePath)
 findPost dir = do
   post <- getDirectoryFiles dir ["**/*.md"]
   return $ case post of
-    [] -> Left $ PostNotFound dir
-    [post] -> Right $ dir </> post
+    []            -> Left $ PostNotFound dir
+    [p]           -> Right $ dir </> p
     markdownFiles -> Left $ TooManyMDFiles dir markdownFiles
 
-getPosts :: FilePath -> IO [Either Error Post]
+getPosts :: FilePath -> IO (Either Error [Post])
 getPosts target = do
-  listDirectory target
-    >>= filterM doesDirectoryExist . map (target </>)
-    >>= mapM (findPost >=> either (return . Left) parsePost)
+  fmap sequence
+    $ listDirectory target
+        >>= filterM doesDirectoryExist . map (target </>)
+        >>= mapM (findPost >=> either (return . Left) parsePost)
+
 
 data AppTemplates
   = PostTemplate
@@ -163,12 +182,12 @@ fetchTemplate :: AppTemplates -> IO (Template Text)
 fetchTemplate whichTemplate = do
   let templatePath = case whichTemplate of
         PostTemplate -> "post.pandoc"
-        TagTemplate -> "tag.pandoc"
+        TagTemplate  -> "tag.pandoc"
   templateText <- orError ("Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
   orError "Cannot compile template: " <$> compileTemplate "" templateText
- where
-  orError err (Left e) = error $ err <> show e
-  orError _ (Right x) = x
+  where
+    orError err (Left e) = error $ err <> show e
+    orError _ (Right x)  = x
 
 renderPost :: Template Text -> Post -> IO (Either Error (PostMeta, Text))
 renderPost template post =
@@ -176,19 +195,19 @@ renderPost template post =
    in do
         rendered <- runIO write <&> mapLeft (WriteError (path $ meta post) . Text.pack . show)
         return $ rendered >>= \r -> Right (meta post, r)
- where
-  writerOpts =
-    def
-      { writerExtensions = enableExtension Ext_raw_html pandocExtensions
-      , writerHTMLMathMethod = MathJax ""
-      , writerHighlightStyle = Just pygments
-      , writerTemplate = Just template
-      }
-  toMeta Post{meta} =
-    Meta $
-      Map.fromList
-        [ ("title", toMetaValue $ title meta)
-        , ("date", toMetaValue $ show $ date meta)
-        , ("tags", toMetaValue $ Set.toList $ tags meta)
-        , ("category", toMetaValue $ category meta)
-        ]
+  where
+    writerOpts =
+      def
+        { writerExtensions = enableExtension Ext_raw_html pandocExtensions,
+          writerHTMLMathMethod = MathJax "",
+          writerHighlightStyle = Just pygments,
+          writerTemplate = Just template
+        }
+    toMeta Post {meta} =
+      Meta $
+        Map.fromList
+          [ ("title", toMetaValue $ title meta),
+            ("date", toMetaValue $ show $ date meta),
+            ("tags", toMetaValue $ Set.toList $ tags meta),
+            ("category", toMetaValue $ category meta)
+          ]

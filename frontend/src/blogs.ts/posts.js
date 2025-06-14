@@ -1,1 +1,0 @@
-const posts = ["../test/vim-trie.html"]

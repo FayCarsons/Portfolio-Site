@@ -1,29 +1,29 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Main where
 
 import qualified Blog
-import Control.Exception (IOException, catch, try)
-import Control.Monad (forM_, unless)
-import Data.Bifunctor (first)
-import Data.Either (fromRight, partitionEithers)
-import Data.Function (on)
-import Data.List (sortBy)
-import qualified Data.Text.IO as Text
-import qualified Javascript as JS
-import Options.Applicative
-import Post (AppTemplates (..), PostMeta (..))
+import           Control.Exception   (IOException, catch)
+import           Control.Monad       (forM_)
+import           Data.Bifunctor      (first)
+import           Data.Function       (on)
+import           Data.List           (sortBy)
+import qualified Data.Text.IO        as Text
+import qualified Javascript          as JS
+import           Options.Applicative
+import           Post                (AppTemplates (..), PostMeta (..))
 import qualified Post
-import System.Directory (createDirectory, doesDirectoryExist, listDirectory, removeDirectory, removeFile, writable)
-import System.FilePath (takeBaseName, takeFileName, (</>))
+import           System.Directory    (createDirectory, doesDirectoryExist,
+                                      removeDirectory)
+import           System.FilePath     (takeBaseName, (</>))
 
 data Args a
   = Args
   { target :: a
   , output :: a
-  , jsDir :: a
+  , jsDir  :: a
   }
 
 args :: Parser (Args FilePath)
@@ -44,28 +44,33 @@ opts =
 
 main :: IO ()
 main = do
-  args <- execParser opts
-  (_failures, success) <- partitionEithers <$> Post.getPosts (target args)
-  postTemplate <- Post.fetchTemplate PostTemplate
-  tagTemplate <- Post.fetchTemplate TagTemplate
-  renderedPosts <- sequence <$> mapM (Post.renderPost postTemplate) success
-  case renderedPosts of
-    Left e -> print e
-    Right posts ->
-      let Args{output, jsDir} = args
-          orderedPosts = map (first $ outputPath output) $ sortBy (compare `on` date . fst) posts
-          blog = Blog.fromPosts success
-       in do
-            outputExists <- doesDirectoryExist output
-            if outputExists
-              then
-                catch @IOException (removeDirectory output) (const $ return ())
-              else
-                createDirectory output
+  cliArgs <- execParser opts
+  posts <- Post.getPosts (target cliArgs)
+  case posts of
+      Left err -> error $ show err
+      Right ps -> do
+        postTemplate <- Post.fetchTemplate PostTemplate
+        tagTemplate <- Post.fetchTemplate TagTemplate
+        renderedPosts <- sequence <$> mapM (Post.renderPost postTemplate) ps
+        case renderedPosts of
+          Left e -> print e
+          Right ps' ->
+            let Args{output, jsDir} = cliArgs
+                orderedPosts = map (first $ outputPath output) $ sortBy (compare `on` date . fst) ps'
+                blog = Blog.fromPosts ps
+            in do
+                  outputExists <- doesDirectoryExist output
+                  if outputExists
+                    then
+                      catch @IOException (removeDirectory output) (const $ return ())
+                    else
+                      createDirectory output
 
-            Blog.render output tagTemplate blog
-            JS.writeJSMetadata jsDir (map fst orderedPosts)
-            forM_ orderedPosts (uncurry writePost)
+                  Blog.render output tagTemplate blog
+
+                  let previews = map JS.fromPost ps
+                    in JS.writeJSMetadata jsDir previews
+                  forM_ orderedPosts (uncurry writePost)
  where
   outputPath output post = post{path = output </> takeBaseName (path post) ++ ".html"}
   writePost PostMeta{title, path} content = do

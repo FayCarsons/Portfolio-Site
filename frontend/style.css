@@ -66,13 +66,14 @@ body {
 }
 
 .experience {
-  grid-column: 6 / 9;
-  grid-row: 1 / 3;
+    grid-column: 6 / 9;
+    grid-row: 1 / 3;
+    overflow-y: scroll;
 }
 
 .articles {
-  grid-column: 6 / 9;
-  grid-row: 3 / 5;
+    grid-column: 6 / 9;
+    grid-row: 3 / 5;
 }
 
 .projects-gallery {
@@ -102,43 +103,215 @@ body {
     letter-spacing: 0.01em;
 }
 
-/* Experience Styles */
-.experience h2 {
+/* Experience & Articles Styles */
+.experience h2,
+.articles h2 {
     font-size: 1.4rem;
     margin-bottom: 20px;
     color: #2a2a2a;
     font-weight: 600;
 }
 
-.experience-item {
+.experience-item,
+.article-item {
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid #f0f0f0;
 }
 
-.experience-item:last-child {
+.experience-item:last-child,
+.article-item:last-child {
     border-bottom: none;
     margin-bottom: 0;
 }
 
-.experience-item h3 {
+.experience-item h3,
+.article-item h3 {
     font-size: 1rem;
     margin-bottom: 4px;
     color: #1a1a1a;
     font-weight: 500;
 }
 
-.experience-item .company {
+.experience-item .company,
+.article-item .publication {
     font-size: 0.85rem;
     color: #888888;
     margin-bottom: 6px;
     font-weight: 500;
 }
 
-.experience-item p {
+.experience-item p,
+.article-item p {
     font-size: 0.85rem;
     color: #666666;
     line-height: 1.4;
+}
+
+/* Articles Section */
+.articles-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    /* Leave space for footer */
+}
+
+.blog-previews {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 8px;
+}
+
+.blog-preview-item {
+    margin-bottom: 14px;
+    padding: 12px;
+    border: 1px solid #f5f5f5;
+    border-radius: 6px;
+    background: #fdfdfd;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.blog-preview-item:last-child {
+    margin-bottom: 0;
+}
+
+.blog-preview-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, #e8e8e8, #d0d0d0);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.blog-preview-item:hover {
+    transform: translateY(-1px);
+    border-color: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+}
+
+.blog-preview-item:hover::before {
+    opacity: 1;
+}
+
+.blog-preview-item h3 {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.blog-preview-item h3 a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.blog-preview-item h3 a:hover {
+    color: #666666;
+}
+
+.blog-preview-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.blog-preview-date {
+    font-size: 0.8rem;
+    color: #888888;
+    font-weight: 500;
+}
+
+.blog-preview-tags {
+    display: flex;
+    gap: 4px;
+}
+
+.blog-preview-tag {
+    font-size: 0.7rem;
+    background: #f0f0f0;
+    color: #666666;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.blog-preview-excerpt {
+    font-size: 0.8rem;
+    color: #666666;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.articles-footer {
+    flex-shrink: 0;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+    background: #ffffff;
+    position: relative;
+}
+
+.view-all-link {
+    font-size: 0.85rem;
+    color: #888888;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.view-all-link:hover {
+    color: #1a1a1a;
+    transform: translateX(2px);
+}
+
+
+.view-all-link:hover::after {
+    transform: rotate(45deg) translateX(2px);
+}
+
+/* Loading state */
+.blog-previews.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888888;
+    font-size: 0.85rem;
+    background: #fdfdfd;
+    border: 1px solid #f5f5f5;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.blog-previews.loading::before {
+    content: '○';
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Projects Gallery */
@@ -202,9 +375,23 @@ body {
     animation: pulse 2s ease-in-out infinite;
 }
 
-.network-node:nth-child(1) { top: 30%; left: 20%; animation-delay: 0s; }
-.network-node:nth-child(2) { top: 50%; left: 50%; animation-delay: 0.5s; }
-.network-node:nth-child(3) { top: 70%; left: 80%; animation-delay: 1s; }
+.network-node:nth-child(1) {
+    top: 30%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.network-node:nth-child(2) {
+    top: 50%;
+    left: 50%;
+    animation-delay: 0.5s;
+}
+
+.network-node:nth-child(3) {
+    top: 70%;
+    left: 80%;
+    animation-delay: 1s;
+}
 
 .connection {
     position: absolute;
@@ -266,7 +453,7 @@ body {
 .shader-grid-mini {
     width: 100%;
     height: 100%;
-    background: 
+    background:
         linear-gradient(90deg, #f0f0f0 1px, transparent 1px),
         linear-gradient(#f0f0f0 1px, transparent 1px);
     background-size: 12px 12px;
@@ -295,7 +482,7 @@ body {
 .shader-grid {
     width: 100%;
     height: 100%;
-    background: 
+    background:
         linear-gradient(90deg, #f0f0f0 1px, transparent 1px),
         linear-gradient(#f0f0f0 1px, transparent 1px);
     background-size: 16px 16px;
@@ -344,11 +531,30 @@ body {
     animation: barDance 3s ease-in-out infinite;
 }
 
-.shader-bar:nth-child(1) { height: 20%; animation-delay: 0s; }
-.shader-bar:nth-child(2) { height: 60%; animation-delay: 0.2s; }
-.shader-bar:nth-child(3) { height: 40%; animation-delay: 0.4s; }
-.shader-bar:nth-child(4) { height: 80%; animation-delay: 0.6s; }
-.shader-bar:nth-child(5) { height: 30%; animation-delay: 0.8s; }
+.shader-bar:nth-child(1) {
+    height: 20%;
+    animation-delay: 0s;
+}
+
+.shader-bar:nth-child(2) {
+    height: 60%;
+    animation-delay: 0.2s;
+}
+
+.shader-bar:nth-child(3) {
+    height: 40%;
+    animation-delay: 0.4s;
+}
+
+.shader-bar:nth-child(4) {
+    height: 80%;
+    animation-delay: 0.6s;
+}
+
+.shader-bar:nth-child(5) {
+    height: 30%;
+    animation-delay: 0.8s;
+}
 
 .shader-matrix {
     font-family: 'Courier New', monospace;
@@ -362,25 +568,21 @@ body {
 .shader-noise {
     width: 100%;
     height: 100%;
-    background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 1px,
-        #f0f0f0 1px,
-        #f0f0f0 2px
-    );
+    background: repeating-linear-gradient(90deg,
+            transparent,
+            transparent 1px,
+            #f0f0f0 1px,
+            #f0f0f0 2px);
     animation: noiseShift 0.5s linear infinite;
 }
 
 .shader-scan {
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        0deg,
-        transparent 0%,
-        #e8e8e8 50%,
-        transparent 100%
-    );
+    background: linear-gradient(0deg,
+            transparent 0%,
+            #e8e8e8 50%,
+            transparent 100%);
     animation: scanLine 3s ease-in-out infinite;
 }
 
@@ -394,7 +596,7 @@ body {
 .shader-circuit {
     width: 100%;
     height: 100%;
-    background: 
+    background:
         linear-gradient(90deg, transparent 40%, #e8e8e8 40%, #e8e8e8 60%, transparent 60%),
         linear-gradient(0deg, transparent 40%, #e8e8e8 40%, #e8e8e8 60%, transparent 60%);
     background-size: 20px 20px;
@@ -415,7 +617,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
         radial-gradient(circle at 20% 30%, #e8e8e8 1px, transparent 1px),
         radial-gradient(circle at 80% 70%, #e8e8e8 1px, transparent 1px),
         radial-gradient(circle at 40% 80%, #e8e8e8 1px, transparent 1px);
@@ -425,66 +627,149 @@ body {
 
 /* Animations */
 @keyframes gridMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(16px, 16px); }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(16px, 16px);
+    }
 }
 
 @keyframes waveShift {
-    0%, 100% { clip-path: polygon(0 50%, 100% 20%, 100% 80%, 0 100%); }
-    50% { clip-path: polygon(0 20%, 100% 50%, 100% 100%, 0 80%); }
+
+    0%,
+    100% {
+        clip-path: polygon(0 50%, 100% 20%, 100% 80%, 0 100%);
+    }
+
+    50% {
+        clip-path: polygon(0 20%, 100% 50%, 100% 100%, 0 80%);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.7; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
 }
 
 @keyframes barDance {
-    0%, 100% { transform: scaleY(1); }
-    50% { transform: scaleY(1.5); }
+
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(1.5);
+    }
 }
 
 @keyframes connectionPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; }
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
 }
 
 @keyframes taskUpdate {
-    0%, 100% { width: 80%; }
-    50% { width: 60%; }
+
+    0%,
+    100% {
+        width: 80%;
+    }
+
+    50% {
+        width: 60%;
+    }
 }
 
 @keyframes statusBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 
 @keyframes noiseShift {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(2px); }
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(2px);
+    }
 }
 
 @keyframes scanLine {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(200%); }
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(200%);
+    }
 }
 
 @keyframes flicker {
-    0% { opacity: 1; }
-    100% { opacity: 0.7; }
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.7;
+    }
 }
 
 @keyframes circuitFlow {
-    0% { background-position: 0 0, 0 0; }
-    100% { background-position: 20px 0, 0 20px; }
+    0% {
+        background-position: 0 0, 0 0;
+    }
+
+    100% {
+        background-position: 20px 0, 0 20px;
+    }
 }
 
 @keyframes staticNoise {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(1px, -1px); }
-    50% { transform: translate(-1px, 1px); }
-    75% { transform: translate(1px, 1px); }
-    100% { transform: translate(-1px, -1px); }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    25% {
+        transform: translate(1px, -1px);
+    }
+
+    50% {
+        transform: translate(-1px, 1px);
+    }
+
+    75% {
+        transform: translate(1px, 1px);
+    }
+
+    100% {
+        transform: translate(-1px, -1px);
+    }
 }
 
 /* Responsive Design */
@@ -493,17 +778,22 @@ body {
         grid-template-columns: repeat(6, 1fr);
         grid-template-rows: repeat(8, 1fr);
     }
-    
+
     .hero {
         grid-column: span 4;
         grid-row: span 2;
     }
-    
+
     .experience {
         grid-column: span 6;
-        grid-row: span 3;
+        grid-row: span 2;
     }
-    
+
+    .articles {
+        grid-column: span 6;
+        grid-row: span 2;
+    }
+
     .projects-gallery {
         grid-column: span 6;
         grid-row: span 3;
@@ -519,27 +809,32 @@ body {
         height: auto;
         min-height: calc(100vh - 16px);
     }
-    
+
     .hero {
         grid-column: span 4;
         grid-row: span 2;
     }
-    
+
     .experience {
         grid-column: span 4;
-        grid-row: span 4;
+        grid-row: span 2;
     }
-    
+
+    .articles {
+        grid-column: span 4;
+        grid-row: span 2;
+    }
+
     .projects-gallery {
         grid-column: span 4;
         grid-row: span 4;
     }
-    
+
     .small {
         grid-column: span 1;
         grid-row: span 1;
     }
-    
+
     .project-grid {
         grid-template-columns: 1fr;
     }

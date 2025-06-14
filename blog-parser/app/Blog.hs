@@ -25,9 +25,9 @@ import Text.Pandoc.Writers.HTML (writeHtml5String)
 
 data Blog
   = Blog
-  { categories :: Map Text (Set PostMeta)
-  , tags :: Map Text (Set PostMeta)
-  , content :: Map Text Text
+  { categories :: !(Map Text (Set PostMeta))
+  , tags :: !(Map Text (Set PostMeta))
+  , content :: !(Map Text Text)
   }
 
 empty :: Blog

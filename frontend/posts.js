@@ -1,0 +1,1 @@
+const posts = ["../frontend/src/templates/vim-trie.html"]

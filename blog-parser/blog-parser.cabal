@@ -52,7 +52,6 @@ common warnings
     ghc-options: -Wall
 
 executable blog-parser
-    -- Import common warning flags.
     import:           warnings
     main-is:          Main.hs
     other-modules: Post, Blog, Javascript
@@ -67,5 +66,7 @@ executable blog-parser
                       , unordered-containers
                       , containers
                       , optparse-applicative
+                      , aeson
     hs-source-dirs:   app
     default-language: Haskell2010
+    default-extensions: ImportQualifiedPost

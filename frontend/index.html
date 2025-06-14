@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fay Carsons</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- Hero Section -->
@@ -16,38 +18,53 @@
 
         <!-- Small decorative boxes -->
         <div class="bento-box small shader-box">
-            <div class="shader-noise"></div>
+            <canvas id="isolines"></canvas>
         </div>
 
         <div class="bento-box small shader-box">
-            <div class="shader-scan"></div>
+            <canvas id="triangles"></canvas>
         </div>
 
         <!-- Experience Section -->
         <div class="bento-box experience">
             <h2>Experience</h2>
             <div class="experience-item">
-                <h3>Senior Frontend Developer</h3>
-                <div class="company">Tech Corp • 2022-Present</div>
-                <p>Leading frontend architecture and mentoring junior developers on modern web technologies.</p>
-            </div>
-            <div class="experience-item">
-                <h3>Full Stack Developer</h3>
-                <div class="company">Startup Inc • 2020-2022</div>
-                <p>Built scalable web applications using React, Node.js, and cloud infrastructure.</p>
+                <h3>Software Engineer</h3>
+                <div class="company">Fastr • Jan 2025-Jun 2025</div>
+                <p>Integrated upstream features during platform transition and optimized frontend performance, reducing
+                    load times by ~33% and memory usage by ~40%.</p>
             </div>
             <div class="experience-item">
                 <h3>Software Engineer</h3>
-                <div class="company">Digital Agency • 2018-2020</div>
-                <p>Developed responsive websites and web applications for diverse client portfolio.</p>
+                <div class="company">Tarides • Aug 2024-Jan 2025</div>
+                <p>Rewrote Odoc documentation generator parser using Menhir, improving maintainability and performance
+                    for the OCaml ecosystem.</p>
+            </div>
+            <div class="experience-item">
+                <h3>Software Engineering Intern</h3>
+                <div class="company">Grame • Mar 2024-Aug 2024</div>
+                <p>Built live-coding audio plugin for Cables.gl, enabling real-time Faust DSP compilation to WebAssembly
+                    with hot reloading.</p>
+            </div>
+            <div class="experience-item">
+                <h3>Graphics Engineer</h3>
+                <div class="company">Independent • Mar 2023-Mar 2024</div>
+                <p>Created generative art collections exhibited internationally and developed custom rendering
+                    algorithms including raytracing and agent simulations.</p>
             </div>
         </div>
 
+        <!-- Articles Section -->
         <div class="bento-box articles">
-          <h1>Articles</h1>
-          <div class="articles-item">
-            Poop poop pee pee boner
-          </div>
+            <h2>Articles</h2>
+            <div class="articles-container">
+                <div id="blog-previews" class="blog-previews">
+                    <!-- Populated by TypeScript -->
+                </div>
+                <div class="articles-footer">
+                    <a href="/blog" class="view-all-link">View all articles →</a>
+                </div>
+            </div>
         </div>
 
         <!-- Small decorative boxes -->
@@ -55,14 +72,7 @@
             <div class="shader-wave"></div>
         </div>
 
-        <div class="bento-box small shader-box">
-            <div class="shader-bars">
-                <div class="shader-bar"></div>
-                <div class="shader-bar"></div>
-                <div class="shader-bar"></div>
-                <div class="shader-bar"></div>
-                <div class="shader-bar"></div>
-            </div>
+        <div id="widget1" class="bento-box small shader-box">
         </div>
 
         <!-- Projects Gallery -->
@@ -82,7 +92,7 @@
                         <span class="tech">WebGL • TypeScript</span>
                     </div>
                 </div>
-                
+
                 <div class="project-card">
                     <div class="project-preview task-manager">
                         <div class="task-item"></div>
@@ -95,7 +105,7 @@
                         <span class="tech">React • Node.js</span>
                     </div>
                 </div>
-                
+
                 <div class="project-card">
                     <div class="project-preview shader-playground">
                         <div class="shader-grid-mini"></div>
@@ -145,4 +155,5 @@
 
     <script src='./src/main.ts' type='module'></script>
 </body>
+
 </html>

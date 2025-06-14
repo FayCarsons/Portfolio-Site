@@ -1,23 +1,39 @@
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DeriveGeneric  #-}
+{-# LANGUAGE NamedFieldPuns #-}
+module Javascript (writeJSMetadata, Preview, fromPost) where
 
-module Javascript (writeJSMetadata) where
+import           Data.Aeson      (ToJSON, encodeFile)
+import           Data.Foldable   (toList)
+import           Data.Text       (Text)
+import           Data.Time       (Day)
+import           GHC.Generics    (Generic)
+import           Post            (Post)
+import qualified Post            as Posts
+import           System.FilePath ((</>))
 
-import Control.Exception (IOException, catch)
-import Data.List (intercalate)
-import Post (PostMeta (..))
-import System.Directory (createDirectory, doesDirectoryExist, removeDirectory)
-import System.FilePath ((</>))
+data Preview
+  = Preview
+  { title   :: Text
+  , date    :: Day
+  , slug    :: Text
+  , tags    :: [Text]
+  , content :: Text
+  } deriving (Show, Generic)
 
-writeJSMetadata :: FilePath -> [PostMeta] -> IO ()
-writeJSMetadata jsDir posts = do
-  exists <- doesDirectoryExist jsDir
-  if exists
-    then
-      catch @IOException (removeDirectory jsDir) (const $ return ())
-    else
-      createDirectory jsDir
-  writeFile jsPath js
- where
-  js = "const posts = [" <> intercalate (repeat ',') (map (delimit . path) posts) <> "]"
-  jsPath = jsDir </> "posts.js"
-  delimit s = "\"" <> s <> "\""
+instance ToJSON Preview
+
+fromPost :: Post -> Preview
+fromPost post =
+  Preview
+    (Posts.title meta)
+    (Posts.date meta)
+    (Posts.slug meta)
+    (toList $ Posts.tags meta)
+    preview
+  where
+    meta = Posts.meta post
+    preview = Posts.preview post
+
+
+writeJSMetadata :: FilePath -> [Preview] -> IO ()
+writeJSMetadata jsDir = encodeFile $ jsDir </> "blog-previews.json"
