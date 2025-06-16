@@ -24,7 +24,6 @@ dist-ssr
 *.sw?
 dummy.css
 out.css 
-*/package-lock.json
 
 /public/json
 blog-parser/dist-newstyle
