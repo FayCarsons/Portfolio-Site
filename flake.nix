@@ -8,7 +8,26 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = nixpkgs.legacyPackages.${system};
+      let 
+        pkgs = nixpkgs.legacyPackages.${system};
+        
+        # Pre-build the frontend dependencies
+        frontend = pkgs.buildNpmPackage {
+          pname = "portfolio-frontend";
+          version = "1.0.0";
+          src = ./frontend;
+          
+          npmDepsHash = "sha256-UvZLVEnjejfj3W8/P+Vx9/B44Zldumt7aDsYiD95PkE=";
+          
+          buildPhase = ''
+            npm run build
+          '';
+          
+          installPhase = ''
+            cp -r dist $out
+          '';
+        };
+        
       in {
         packages.default = pkgs.stdenv.mkDerivation {
           name = "portfolio-site";
@@ -17,56 +36,30 @@
           buildInputs = with pkgs; [ 
             ghc 
             cabal-install 
-            nodejs
-            nodePackages.npm
-            # System dependencies for Haskell packages
             zlib
             zlib.dev
             pkg-config
           ];
           
-          # Make sure pkg-config can find the libraries
           PKG_CONFIG_PATH = "${pkgs.zlib.dev}/lib/pkgconfig";
           
           buildPhase = ''
-            # Set up temporary home directory for cabal
             export HOME=$TMPDIR
             mkdir -p $HOME/.cabal
             
             echo "Building blog parser..."
             cd blog-parser
-            
-            # Initialize cabal in the temporary home
             cabal user-config init
             cabal update
             cabal configure
             cabal build
             cd ..
-            
-            echo "Building frontend..."
-            cd frontend
-            
-            # Set npm cache to temporary directory
-            export npm_config_cache=$TMPDIR/.npm
-            npm ci
-            npm run build
           '';
           
           installPhase = ''
-            cp -r frontend/dist $out
+            # Copy the pre-built frontend
+            cp -r ${frontend} $out
           '';
-        };
-        
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ 
-            ghc 
-            cabal-install 
-            nodejs 
-            nodePackages.npm
-            zlib
-            zlib.dev
-            pkg-config
-          ];
         };
       });
 }
