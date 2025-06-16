@@ -1,4 +1,5 @@
 * {
+    font-family: 'Outfit';
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -63,6 +64,63 @@ body {
     flex-direction: column;
     justify-content: center;
     background: linear-gradient(135deg, #fdfdfd 0%, #f5f5f5 100%);
+}
+
+
+.ticker-container {
+    height: 28px;
+    overflow: hidden;
+    position: relative;
+    mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.ticker-content {
+    display: flex;
+    animation: scroll 25s linear infinite;
+    white-space: nowrap;
+}
+
+.ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #666;
+    padding-right: 1em;
+    padding-left: 0;
+    /* Space between items */
+    flex-shrink: 0;
+}
+
+/* Duplicate the content for seamless loop */
+.ticker-content::after {
+    content: '';
+    display: block;
+    width: 3ch;
+    /* Matches the padding-right */
+}
+
+
+.ticker-item:not(:last-child)::after {
+    content: ' · ';
+    color: #999;
+    /* Slightly lighter than text */
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+        /* Move exactly half the content width */
+    }
+}
+
+/* Pause on hover */
+.ticker-container:hover .ticker-content {
+    animation-play-state: paused;
 }
 
 .experience {
@@ -477,299 +535,6 @@ body {
     justify-content: center;
     position: relative;
     overflow: hidden;
-}
-
-.shader-grid {
-    width: 100%;
-    height: 100%;
-    background:
-        linear-gradient(90deg, #f0f0f0 1px, transparent 1px),
-        linear-gradient(#f0f0f0 1px, transparent 1px);
-    background-size: 16px 16px;
-    animation: gridMove 20s linear infinite;
-}
-
-.shader-wave {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, #e8e8e8, #d0d0d0);
-    clip-path: polygon(0 50%, 100% 20%, 100% 80%, 0 100%);
-    animation: waveShift 6s ease-in-out infinite;
-}
-
-.shader-pulse {
-    width: 40px;
-    height: 40px;
-    border: 1px solid #888888;
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-    position: relative;
-}
-
-.shader-pulse::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 2px;
-    background: #666666;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.shader-bars {
-    display: flex;
-    align-items: end;
-    gap: 3px;
-    height: 40px;
-}
-
-.shader-bar {
-    width: 6px;
-    background: linear-gradient(to top, #e0e0e0, #b0b0b0);
-    animation: barDance 3s ease-in-out infinite;
-}
-
-.shader-bar:nth-child(1) {
-    height: 20%;
-    animation-delay: 0s;
-}
-
-.shader-bar:nth-child(2) {
-    height: 60%;
-    animation-delay: 0.2s;
-}
-
-.shader-bar:nth-child(3) {
-    height: 40%;
-    animation-delay: 0.4s;
-}
-
-.shader-bar:nth-child(4) {
-    height: 80%;
-    animation-delay: 0.6s;
-}
-
-.shader-bar:nth-child(5) {
-    height: 30%;
-    animation-delay: 0.8s;
-}
-
-.shader-matrix {
-    font-family: 'Courier New', monospace;
-    font-size: 10px;
-    color: #aaaaaa;
-    line-height: 1.1;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.shader-noise {
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(90deg,
-            transparent,
-            transparent 1px,
-            #f0f0f0 1px,
-            #f0f0f0 2px);
-    animation: noiseShift 0.5s linear infinite;
-}
-
-.shader-scan {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(0deg,
-            transparent 0%,
-            #e8e8e8 50%,
-            transparent 100%);
-    animation: scanLine 3s ease-in-out infinite;
-}
-
-.shader-flicker {
-    width: 100%;
-    height: 100%;
-    background: #f0f0f0;
-    animation: flicker 0.3s ease-in-out infinite alternate;
-}
-
-.shader-circuit {
-    width: 100%;
-    height: 100%;
-    background:
-        linear-gradient(90deg, transparent 40%, #e8e8e8 40%, #e8e8e8 60%, transparent 60%),
-        linear-gradient(0deg, transparent 40%, #e8e8e8 40%, #e8e8e8 60%, transparent 60%);
-    background-size: 20px 20px;
-    animation: circuitFlow 4s linear infinite;
-}
-
-.shader-static {
-    width: 100%;
-    height: 100%;
-    background: #f5f5f5;
-    position: relative;
-}
-
-.shader-static::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background:
-        radial-gradient(circle at 20% 30%, #e8e8e8 1px, transparent 1px),
-        radial-gradient(circle at 80% 70%, #e8e8e8 1px, transparent 1px),
-        radial-gradient(circle at 40% 80%, #e8e8e8 1px, transparent 1px);
-    background-size: 15px 15px;
-    animation: staticNoise 0.2s linear infinite;
-}
-
-/* Animations */
-@keyframes gridMove {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    100% {
-        transform: translate(16px, 16px);
-    }
-}
-
-@keyframes waveShift {
-
-    0%,
-    100% {
-        clip-path: polygon(0 50%, 100% 20%, 100% 80%, 0 100%);
-    }
-
-    50% {
-        clip-path: polygon(0 20%, 100% 50%, 100% 100%, 0 80%);
-    }
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.1);
-        opacity: 0.7;
-    }
-}
-
-@keyframes barDance {
-
-    0%,
-    100% {
-        transform: scaleY(1);
-    }
-
-    50% {
-        transform: scaleY(1.5);
-    }
-}
-
-@keyframes connectionPulse {
-
-    0%,
-    100% {
-        opacity: 0.3;
-    }
-
-    50% {
-        opacity: 0.8;
-    }
-}
-
-@keyframes taskUpdate {
-
-    0%,
-    100% {
-        width: 80%;
-    }
-
-    50% {
-        width: 60%;
-    }
-}
-
-@keyframes statusBlink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
-}
-
-@keyframes noiseShift {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(2px);
-    }
-}
-
-@keyframes scanLine {
-    0% {
-        transform: translateY(-100%);
-    }
-
-    100% {
-        transform: translateY(200%);
-    }
-}
-
-@keyframes flicker {
-    0% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0.7;
-    }
-}
-
-@keyframes circuitFlow {
-    0% {
-        background-position: 0 0, 0 0;
-    }
-
-    100% {
-        background-position: 20px 0, 0 20px;
-    }
-}
-
-@keyframes staticNoise {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    25% {
-        transform: translate(1px, -1px);
-    }
-
-    50% {
-        transform: translate(-1px, 1px);
-    }
-
-    75% {
-        transform: translate(1px, 1px);
-    }
-
-    100% {
-        transform: translate(-1px, -1px);
-    }
 }
 
 /* Responsive Design */

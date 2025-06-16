@@ -1,16 +1,16 @@
 import { Shader } from "../shaders/Shader";
 import * as TWGL from 'twgl.js'
-import feedbackFragment from './Feedback.glsl?raw'
-import displayFragment from './Display.glsl?raw'
+import conwayFragment from './Conway.glsl?raw'
+import display from './Display.glsl?raw'
 
-type FeedbackState = {
+type ConwayState = {
     front: TWGL.FramebufferInfo
     back: TWGL.FramebufferInfo
     swap: () => void
     createTexs: (gl: WebGL2RenderingContext) => void
 }
 
-type FeedbackUniforms = {
+type ConwayUniforms = {
     tex: WebGLTexture
 }
 
@@ -18,9 +18,9 @@ type DisplayUniforms = {
     tex: WebGLTexture
 }
 
-export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescriptor<FeedbackUniforms>, Shader.ShaderDescriptor<DisplayUniforms>] {
+export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescriptor<ConwayUniforms>, Shader.ShaderDescriptor<DisplayUniforms>] {
     // Shared state between feedback and display shaders
-    const state: Partial<FeedbackState> = {}
+    const state: Partial<ConwayState> = {}
 
     function createTexs(gl: WebGL2RenderingContext) {
         // Delete framebuffers if they exist
@@ -67,9 +67,9 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
     state.createTexs = createTexs
 
     // FEEDBACK SHADER - renders to framebuffers
-    const feedbackShader: Shader.ShaderDescriptor<FeedbackUniforms> = {
+    const gameOfLife: Shader.ShaderDescriptor<ConwayUniforms> = {
         canvas,
-        fragment: feedbackFragment,
+        fragment: conwayFragment,
         uniforms: {
             tex: null as any, // Will be set in pre()
         },
@@ -84,7 +84,7 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
             gl.viewport(0, 0, canvas.width, canvas.height)
 
             // Set texture to read from front buffer
-            feedbackShader.uniforms!.tex = state.front!.attachments[0]
+            gameOfLife.uniforms!.tex = state.front!.attachments[0]
         },
 
         post: (_: WebGL2RenderingContext) => {
@@ -94,14 +94,14 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
         resize: (gl: WebGL2RenderingContext) => {
             createTexs(gl)
 
-            feedbackShader.uniforms!.tex = state.front!.attachments[0]
+            gameOfLife.uniforms!.tex = state.front!.attachments[0]
         }
     }
 
     // DISPLAY SHADER - renders feedback result to canvas
     const displayShader: Shader.ShaderDescriptor<DisplayUniforms> = {
         canvas,
-        fragment: displayFragment,
+        fragment: display,
         uniforms: {
             tex: null as any // Will be set in pre()
         },
@@ -116,19 +116,5 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
         }
     }
 
-    return [feedbackShader, displayShader]
-}
-/*
-// Usage example:
-export function createFeedbackEffect(canvas: HTMLCanvasElement): Shader.Shader[] {
-    const [feedbackDesc, displayDesc] = createFeedbackSystem(canvas)
-
-    const feedbackShader = Shader.make(feedbackDesc)
-    const displayShader = Shader.make(displayDesc)
-
-    if (!feedbackShader || !displayShader) {
-        throw new Error('Failed to create shaders')
-    }
-
-    return [feedbackShader, displayShader]
-}*/
+    return [gameOfLife, displayShader]
+} 

@@ -165,31 +165,29 @@ export namespace GraphViz {
     // Your existing LofiForceGraph class goes here, then add this renderer:
 
     export class Renderer {
-        private canvas: HTMLCanvasElement;
+        private parent: HTMLElement | null
         private ctx: CanvasRenderingContext2D;
         private time = 0;
 
-        constructor(private container: HTMLElement) {
-            this.canvas = document.createElement('canvas');
-
-            this.canvas.width = container.clientWidth
-            this.canvas.height = container.clientHeight
+        constructor(private canvas: HTMLCanvasElement) {
+            this.parent = canvas.parentElement!
+            this.canvas.width = this.parent.clientWidth
+            this.canvas.height = this.parent.clientHeight
 
             this.canvas.style.display = "block"
             this.canvas.style.margin = "0"
             this.canvas.style.padding = "0"
             this.canvas.style.background = '#ffffff';
-            container.appendChild(this.canvas);
 
             this.ctx = this.canvas.getContext('2d')!;
             this.resize();
 
             // Auto-resize
-            new ResizeObserver(() => this.resize()).observe(container);
+            new ResizeObserver(() => this.resize()).observe(this.parent);
         }
 
-        private resize() {
-            const { width, height } = this.container.getBoundingClientRect()
+        public resize() {
+            const { width, height } = this.parent!.getBoundingClientRect()
             this.canvas.width = width
             this.canvas.height = height
             this.canvas.style.width = "100%"
@@ -252,6 +250,63 @@ export namespace GraphViz {
                 ctx.lineWidth = 0.5;
                 ctx.stroke();
             });
+        }
+    }
+
+
+
+    export function make(canvas: HTMLCanvasElement): { render: () => void, resize: () => void, isCanvas: true } {
+        const { width, height } = canvas;
+        const bounds = { width, height }
+
+
+        const graph = new GraphViz.FDG({
+            bounds,
+            repulsion: 800,          // Strong repulsion for good spacing
+            attraction: 0.08,         // Balanced spring force
+            centerAttraction: 0.01, // Very gentle center pull
+            damping: 0.5,           // Smooth gradual settling
+            maxSpeed: 1
+        })
+
+        const renderer = new GraphViz.Renderer(canvas)
+        const nNodes = 18
+
+        // Add nodes with uniform mass and better spacing
+        for (let i = 0; i < nNodes; i++) {
+            graph.addNode(
+                Math.random() * bounds.width * 0.6 + bounds.width * 0.2,  // More centered distribution
+                Math.random() * bounds.height * 0.6 + bounds.height * 0.2,
+                1.0  // Uniform mass for predictable behavior
+            )
+        }
+
+        // Fixed edge generation - ensure connectivity and proper indices
+        // Create spanning tree with consistent edge lengths
+        for (let i = 1; i < nNodes; i++) {
+            const target = Math.floor(Math.random() * i);
+            graph.addEdge(i, target, 80);  // Consistent edge length
+        }
+
+        // Add fewer, more intentional extra edges
+        const extraEdges = Math.floor(nNodes * 0.3);  // Only 30% extra edges
+        for (let i = 0; i < extraEdges; i++) {
+            const source = Math.floor(Math.random() * nNodes);
+            const target = Math.floor(Math.random() * nNodes);
+
+            if (source !== target) {
+                graph.addEdge(source, target, 80);  // Consistent edge length
+            }
+        }
+
+        return {
+            ...renderer,
+            isCanvas: true,
+            resize: renderer.resize,
+            render() {
+                graph.tick()
+                renderer.render(graph)
+            }
         }
     }
 }

@@ -2,17 +2,18 @@ export namespace Builtins {
     export type Builtins = {
         size: [number, number],
         frame: number,
+        seed: number,
         tick: () => void
     }
 
-    export const make = () => {
-        const builtins: Partial<Builtins> = { size: [350, 150], frame: 0 }
-
-        function tick() {
-            builtins.frame!++
+    export function make() {
+        return {
+            size: [350, 150],
+            frame: 0,
+            seed: Math.random() * 10_000,
+            tick() {
+                this.frame!++
+            }
         }
-
-        builtins.tick = tick
-        return builtins as Builtins
     }
 }

@@ -5,11 +5,15 @@ import trivialVert from './TrivialVert.glsl?raw'
 export namespace Shader {
     export type UniformFactory = (gl: WebGL2RenderingContext) => void
 
-    export interface Shader {
+    export type Shader = {
         gl: WebGL2RenderingContext
         builtins: Builtins.Builtins
         render: () => void
         resize: () => void
+    } | {
+        render: () => void,
+        resize: () => void,
+        isCanvas: true
     }
 
     export interface ShaderDescriptor<T = {}> {
@@ -22,8 +26,13 @@ export namespace Shader {
         resize?: (gl: WebGL2RenderingContext) => void
     }
 
-    export function make<T = {}>({ canvas, fragment, uniforms, init, pre, post, resize }: ShaderDescriptor<T>): Shader | undefined {
-        const parent = canvas.parentElement!
+    export function make<T = {}>(desc: ShaderDescriptor<T> | { render: () => void, resize: () => void, isCanvas: true }): Shader | undefined {
+        if ('isCanvas' in desc) {
+            return desc as Shader
+        }
+
+        const { canvas, fragment, init, pre, post, resize, uniforms } = desc;
+        const parent = canvas.parentElement ?? document.body
         canvas.width = parent.clientWidth
         canvas.height = parent.clientHeight
 
@@ -45,26 +54,58 @@ export namespace Shader {
         gl.bindVertexArray(vao)
 
         function onResize() {
+            canvas.width = parent.clientWidth
+            canvas.height = parent.clientHeight
             TWGL.resizeCanvasToDisplaySize(canvas)
             gl?.viewport(0, 0, canvas.width, canvas.height)
-            builtins.size = [canvas.width, canvas.height]
+            builtins.size = [canvas.width, canvas.height] as [number, number]
             resize?.(gl!)
         }
 
+
+        const resizeObserver = new ResizeObserver(onResize)
+        resizeObserver.observe(parent)
+
         function render() {
             builtins.tick()
+
             pre?.(gl!)
+
             gl?.useProgram(programInfo.program)
             TWGL.setUniforms(programInfo, { ...builtins, ...(uniforms ?? {}) })
             gl?.drawArrays(gl.TRIANGLES, 0, 3)
+
             post?.(gl!)
         }
 
         return {
             gl,
-            builtins,
+            builtins: builtins as Builtins.Builtins,
             render,
             resize: onResize
+        }
+    }
+
+    export function toRenderer(
+        initFns: Array<(canvas: HTMLCanvasElement) => ShaderDescriptor<any> | ShaderDescriptor<any>[] | { resize: () => void, render: () => void, isCanvas: true }>,
+        canvases: HTMLCanvasElement[]
+    ): () => void {
+        const shaders = canvases
+            .flatMap((canvas: HTMLCanvasElement, idx: number) => {
+                const builder = initFns[idx]
+                const shaderName = builder.name
+                canvas.addEventListener('click', () =>
+                    window.location.href = `shader.html?shader=${shaderName}`
+                )
+
+                return builder(canvas)
+            })
+            .map(make)
+
+        return () => {
+            for (const shader of shaders) {
+                shader?.render()
+            }
         }
     }
 }
