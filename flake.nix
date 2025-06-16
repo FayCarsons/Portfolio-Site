@@ -17,8 +17,8 @@
           buildInputs = with pkgs; [ 
             ghc 
             cabal-install 
-            nodejs 
-            npm 
+            nodejs
+            nodePackages.npm  # Explicitly add npm
           ];
           
           buildPhase = ''
@@ -41,9 +41,13 @@
           '';
         };
         
-        # Development shell (optional, for local development)
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ ghc cabal-install nodejs npm ];
+          buildInputs = with pkgs; [ 
+            ghc 
+            cabal-install 
+            nodejs 
+            nodePackages.npm 
+          ];
         };
       });
 }
