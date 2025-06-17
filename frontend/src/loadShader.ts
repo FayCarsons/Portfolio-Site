@@ -1,4 +1,4 @@
-import { Shader } from './src/shaders/shader.ts'
+import { Shader } from './shaders/Shader.ts'
 
 async function loadShader() {
     try {
@@ -35,27 +35,17 @@ async function loadShader() {
         // Hide loading, show controls
         document.getElementById('loading')!.style.display = 'none';
 
-        // Start render loop
-        let isPlaying = true;
         function animate() {
             runner.forEach(x => x?.render())
             requestAnimationFrame(animate);
         }
         animate();
-
     } catch (error) {
         console.error('Failed to load shader:', error);
         document.getElementById('loading')!.style.display = 'none';
         document.getElementById('error')!.style.display = 'block';
     }
 }
-
-// Handle resize
-window.addEventListener('resize', () => {
-    const canvas = document.getElementById('shader-canvas')! as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
 
 // Load shader on page load
 loadShader();
