@@ -59,16 +59,16 @@ function createBlogPreviewElement(post: BlogPost): HTMLElement {
     const displayTags = post.tags
 
     article.innerHTML = `
-    <h3>
-      <a href="articles/${post.slug}">${post.title}</a>
-    </h3>
-    <div class="blog-preview-meta">
-      <span class="blog-preview-date">${formattedDate}</span>
-      <div class="blog-preview-tags">
-        ${displayTags.map(tag => `<a href="tags/${tag}"><span class="blog-preview-tag">${tag}</span></a>`).join('')}
-      </div>
+    <div class="blog-preview">
+        <a href="articles/${post.slug}" class="blog-preview-link">
+            <h3>${post.title}</h3>
+            <span class="blog-preview-date">${formattedDate}</span>
+            <p class="blog-preview-excerpt">${post.content}</p>
+        </a>
+        <div class="blog-preview-tags">
+            ${displayTags.map(tag => `<a href="tags/${tag}"><span class="blog-preview-tag">${tag}</span></a>`).join('')}
+        </div>
     </div>
-    <p class="blog-preview-excerpt">${post.content}</p>
   `;
 
     return article;

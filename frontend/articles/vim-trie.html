@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fay Carsons</title>
+    <link rel="stylesheet" href="article.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+</head>
+<body>
+<article class="post-summary">
+  <h2 class="post-title">Efficient key bindings with Tries</h2>
+  <div class="post-metadata">
+        <time datetime="2024-11-17" class="post-date">2024-11-17</time>
+        <span class="post-author">Fay Carsons</span>
+  </div>
+  <div id="article-container">
+    <p>I love working with trees. There’s something very satisfying
+    about recursive tree traversals - the way they naturally break down
+    complex problems into simple solutions. I’ve found this to be true
+    in almost every language I’ve used but MLs like Haskell and OCaml
+    lend themselves to this particularly well.</p>
+    <p>So when I found myself building an app with Vim-inspired key
+    bindings in OCaml, I was excited to realize that a specific type of
+    tree, call a trie (pronounced “try”) can be used to handle key
+    bindings.</p>
+    <p>Let me show you how it works!</p>
+    <h2 id="what-are-we-building">What are we building?</h2>
+    <p>Let’s imagine we’re writing an app where you can move around with
+    ‘hjkl’ keys, and use ‘q’ to quit. First, we need some basic types to
+    represent our app’s state:</p>
+    <div class="sourceCode" id="cb1"><pre
+    class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">(* Just the basics - whether we should quit and where our cursor is *)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> App = <span class="kw">struct</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> t =</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    { should_quit : <span class="dt">bool</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    ; cursor_pos : <span class="dt">int</span> * <span class="dt">int</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">(* Things we can do in our app *)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Action = <span class="kw">struct</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> t =</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    | Move <span class="kw">of</span> <span class="dt">int</span> * <span class="dt">int</span> <span class="co">(* how far to move (lines, columns) *)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    | Quit</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">(* Apply an action to get a new app state *)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> eval app = <span class="kw">function</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    | Move (dline, dcolumn) -&gt;</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="kw">let</span> line, column = app.cursor_pos <span class="kw">in</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      { app <span class="kw">with</span> cursor_pos = line + dline, column + dcolumn }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    | Quit -&gt; { app <span class="kw">with</span> should_quit = <span class="kw">true</span> }</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  ;;</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> key_bind =</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  { keys : Key.t <span class="dt">list</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  ; action : Action.t</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> default_keybinds =</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  [ { keys = [ Key.<span class="dt">Char</span> <span class="ch">&#39;q&#39;</span> ]; action = Quit }</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  ; { keys = [ Key.<span class="dt">Char</span> <span class="ch">&#39;h&#39;</span> ]; action = Move (<span class="dv">0</span>, <span class="dv">-1</span>) }</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  ; { keys = [ Key.<span class="dt">Char</span> <span class="ch">&#39;j&#39;</span> ]; action = Move (<span class="dv">1</span>, <span class="dv">0</span>) }</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  ; { keys = [ Key.<span class="dt">Char</span> <span class="ch">&#39;k&#39;</span> ]; action = Move (<span class="dv">-1</span>, <span class="dv">0</span>) }</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  ; { keys = [ Key.<span class="dt">Char</span> <span class="ch">&#39;l&#39;</span> ]; action = Move (<span class="dv">0</span>, <span class="dv">1</span>) } </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>;;</span></code></pre></div>
+    <h2 id="the-tricky-part">The tricky part</h2>
+    <p>Now, how do we actually match key-presses to actions? The naive
+    way would be to:</p>
+    <ul>
+    <li>Push keys onto a linked list as they come in</li>
+    <li>Check if that list matches any of our bindings</li>
+    <li>If one matches, do the action and clear the list</li>
+    <li>Otherwise continue, clearing the list if it gets too big</li>
+    </ul>
+    <p>This would work! But it’s not great - every time we get a new
+    key, we have to check all the keys we’ve gotten against
+    <em>every</em> key in <em>every</em> binding. If we’ve got a lot of
+    key bindings, that’s going to get slow.</p>
+    <h2 id="enter-the-trie">Enter the Trie</h2>
+    <figure>
+    <img src="Trie.svg" alt="Trie diagram" />
+    <figcaption aria-hidden="true">Trie diagram</figcaption>
+    </figure>
+    <p>This is where tries come in! Think of a trie as a tree where each
+    path from root to leaf spells out a sequence - in our app’s case, a
+    sequence of keys that maps to an action. When we insert the mappings
+    ‘do’ → 0 and ‘dog’ → 1, we get the structure shown above.</p>
+    <p>Notice how both sequences share the path ‘d’ → ‘o’ before
+    diverging. This is the key insight behind tries: common prefixes are
+    stored just once, and we can walk down the tree one element at a
+    time until we either find a value (meaning we’ve matched a complete
+    sequence) or hit a dead end.</p>
+    <p>Here’s how we represent our trie in OCaml types:</p>
+    <div class="sourceCode" id="cb2"><pre
+    class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Key_trie = <span class="kw">struct</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> t = Root <span class="kw">of</span> branch</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">and</span> branch = (Key.t, node) <span class="dt">Hashtbl</span>.t</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">and</span> node =</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    | Leaf <span class="kw">of</span> Action.t    <span class="co">(* We found an action! *)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    | Branch <span class="kw">of</span> branch    <span class="co">(* More keys to go... *)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+    <p>One notable difference in how we’ve structured our trie nodes: in
+    a traditional trie, nodes can have both children and a value because
+    any string that we use to query the trie has a known length - when
+    we’ve reached the end of the string we know that’s where our value
+    should be. This generally includes situations with char streams as
+    well, in those situations its what we have that matters, not what we
+    may get. If you’re using a trie for something like a search engine,
+    you want to show suggestions based on what’s been typed <em>so
+    far</em>, and that has a known length!</p>
+    <p>But in our case, our nodes either have children <em>or</em> a
+    value, never both. This is because we’re dealing with a stream of
+    keystrokes, we can’t know how many are coming. So we need the trie
+    structure itself to tell us whether we’ve gotten a complete
+    sequence.</p>
+    <p>One other detail: the <code>Root</code> constructor wrapping our
+    branch type (the <code>type t =  Root of branch</code> bit). Since a
+    branch and the root are technically the same thing under the hood,
+    we needed a way to tell them apart in our type system. This prevents
+    us from accidentally passing the entire trie somewhere that expected
+    a sub-tree. This is called the newtype pattern and, while out of the
+    scope of this article I encourage you to look it up if you’re new to
+    typed functional programming.</p>
+    <p>Moving forward, loading up our key-binds looks like this:</p>
+    <div class="sourceCode" id="cb3"><pre
+    class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Key_trie = <span class="kw">struct</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">(* previous code ... *)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> load : key_bind -&gt; t -&gt; t =</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fun</span> { keys; action } (Root self) -&gt;</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="kw">rec</span> go branch = <span class="kw">function</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      | [ key ] -&gt;</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">(* Last key - this is where our action goes *)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Hashtbl</span>.replace branch key (Leaf action);</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        branch</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      | key :: more_keys -&gt;</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        (<span class="kw">match</span> <span class="dt">Hashtbl</span>.find_opt branch key <span class="kw">with</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>         | <span class="dt">Some</span> (Leaf _) -&gt;</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>           <span class="co">(* Someone already has a shorter binding - don&#39;t override it *)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>           branch</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>         | <span class="dt">Some</span> (Branch children) -&gt; go children more_keys</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>         | <span class="dt">None</span> -&gt;</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>           <span class="co">(* New branch! *)</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>           <span class="kw">let</span> children = <span class="dt">Hashtbl</span>.create num_keys <span class="kw">in</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>           <span class="dt">Hashtbl</span>.add branch key (Branch children);</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>           go children more_keys)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>      | [] -&gt; </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">(* This can&#39;t happen because we exit the loop when we encounter the last</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">           key in the list *)</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">failwith</span> <span class="st">&quot;Unreachable!&quot;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    Root (go self keys)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  ;;</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+    <p>Now we can define our trie iterator type:</p>
+    <div class="sourceCode" id="cb4"><pre
+    class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> Iter = <span class="kw">struct</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> iter = Iter <span class="kw">of</span> Key_trie.branch</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">type</span> search_result =</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    | Got <span class="kw">of</span> Action.t</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    | Next <span class="kw">of</span> iter</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    | Nothing</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> create (Root root) = Iter root</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> next (Iter self) key =</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> <span class="dt">Hashtbl</span>.find_opt self key <span class="kw">with</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    | <span class="dt">Some</span> (Leaf action) -&gt; Got action</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    | <span class="dt">Some</span> (Branch next) -&gt; Next (Iter next)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    | <span class="dt">None</span> -&gt; Nothing</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+    <p>Again, we use the newtype pattern for our <code>iter</code> type
+    to get a bit more type safety, but maybe more interestingly we also
+    define a type just for the result of the <code>next</code> function.
+    While not required, this is a strategy I find myself using
+    increasingly often.</p>
+    <p>Instead of some combination of option, either, or result, which
+    would effectively model our state but would lose the semantic
+    meaning and be a bit harder to understand, we define something which
+    fills both of those needs. It’s exactly what we need, each variant
+    communicates its own meaning, and its scope is small enough that
+    missing out on the standard library’s modules for those types
+    doesn’t really matter.</p>
+    <p>Now that we have our iterator and associated functions we can
+    write out our keystroke handler function.</p>
+    <div class="sourceCode" id="cb5"><pre
+    class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> handle_keystroke : App.t -&gt; Key_trie.t -&gt; <span class="dt">unit</span> =</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">fun</span> app_state keybinds -&gt;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> <span class="kw">rec</span> go iter =</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> key = poll_keystroke () <span class="kw">in</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> Iter.next iter key <span class="kw">with</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    | Got action -&gt;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      App.eval action app;</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="co">(* Start over *)</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      go (Iter.create keybinds) </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    | Next next_step -&gt; </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="co">(* Continue *)</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      go next_step </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    | Nothing -&gt; </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">(* Start over *)</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      go (Iter.create keybinds)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">in</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  go (Iter.create keybinds)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>;;</span></code></pre></div>
+    <p>Super simple, we get a key then try to advance. If we get an
+    action we evaluate it and start the iterator back from the root, if
+    not we continue. If we hit a dead end we also restart from the
+    root.</p>
+    <p>This method:</p>
+    <ol type="1">
+    <li>Is much faster than the naive approach.</li>
+    <li>Makes the control flow clear</li>
+    <li>Makes it easy to add user-defined bindings</li>
+    <li>Works great with blocking and async IO</li>
+    </ol>
+    <p>Ultimately, there are a few other things you’d want to add to get
+    parity with Vim. Keeping track of pressed modifiers, handle
+    <code>esc</code> separately so that it can restart the iterator. But
+    this covers a surprising amount, and is efficient and elegant! Now
+    go write a text editor!</p>
+  </div>
+</article>
+</body>
+</html>

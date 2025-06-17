@@ -1,4 +1,4 @@
-import { Shader } from './shaders/Shader.ts'
+import { Shader } from '../src/shaders/Shader.ts'
 
 async function loadShader() {
     try {
@@ -11,7 +11,7 @@ async function loadShader() {
         }
 
         // Update title
-        document.getElementById('shader-title')!.textContent = '';
+        document.getElementById('shader-title').textContent = '';
 
         // Dynamic import
         const module = await import(`./src/sketches/${shaderName}.ts`);
@@ -22,7 +22,7 @@ async function loadShader() {
         }
 
         // Setup canvas
-        const canvas = document.getElementById('shader-canvas')! as HTMLCanvasElement;
+        const canvas = document.getElementById('shader-canvas');
         if (!canvas) alert(`No canvas: ${canvas}`)
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -33,7 +33,7 @@ async function loadShader() {
         const runner = shaders.map(Shader.make);
 
         // Hide loading, show controls
-        document.getElementById('loading')!.style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
 
         function animate() {
             runner.forEach(x => x?.render())
@@ -42,8 +42,8 @@ async function loadShader() {
         animate();
     } catch (error) {
         console.error('Failed to load shader:', error);
-        document.getElementById('loading')!.style.display = 'none';
-        document.getElementById('error')!.style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
     }
 }
 
