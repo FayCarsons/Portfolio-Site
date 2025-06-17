@@ -14,7 +14,7 @@ async function loadShader() {
         document.getElementById('shader-title').textContent = '';
 
         // Dynamic import
-        const module = await import(`./src/sketches/${shaderName}.ts`);
+        const module = await import(`../src/sketches/${shaderName}.ts`);
         const shaderFunction = module.default
 
         if (!shaderFunction) {

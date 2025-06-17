@@ -220,6 +220,10 @@ body {
     margin-bottom: 8px;
 }
 
+.blog-preview-link {
+    text-decoration: none;
+}
+
 .blog-preview-item {
     margin-bottom: 14px;
     padding: 12px;

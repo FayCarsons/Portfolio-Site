@@ -66,7 +66,7 @@ function createBlogPreviewElement(post: BlogPost): HTMLElement {
             <p class="blog-preview-excerpt">${post.content}</p>
         </a>
         <div class="blog-preview-tags">
-            ${displayTags.map(tag => `<a href="tags/${tag}"><span class="blog-preview-tag">${tag}</span></a>`).join('')}
+            ${displayTags.map(tag => `<a href="tags/${tag}" class="blog-preview-link"><span class="blog-preview-tag">${tag}</span></a>`).join('')}
         </div>
     </div>
   `;

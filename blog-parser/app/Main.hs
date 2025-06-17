@@ -83,6 +83,8 @@ mainLogic = do
       catch @IOException (removeDirectory path) (const $ return ())
     createDirectoryIfMissing True path
 
+  liftIO $ Post.moveAssets (target cliArgs) outputBase
+
   -- Render everything
   liftIO $ do
     Blog.render outputTags tagTemplate blog

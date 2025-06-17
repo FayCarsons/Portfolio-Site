@@ -2,11 +2,12 @@
 {-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
-module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview, Error(..)) where
+module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview, Error(..), moveAssets) where
 
 import           Control.Monad                (filterM, (>=>))
 import           Data.Either                  (fromRight)
 import           Data.Functor                 ((<&>))
+import           Data.List                    (isSuffixOf)
 import qualified Data.Map                     as Map
 import           Data.Set                     (Set)
 import qualified Data.Set                     as Set
@@ -14,15 +15,16 @@ import           Data.Text                    (Text)
 import qualified Data.Text                    as Text
 import           Data.Time                    (Day)
 import qualified Data.Time                    as Time
+import           System.Directory
+import           System.FilePath
 -- Paths
-import           System.Directory             (doesDirectoryExist,
-                                               listDirectory)
 import qualified System.FilePath              as Path
-import           System.FilePath              ((</>))
 import           System.FilePattern.Directory (getDirectoryFiles)
 -- Pandoc
 
 import           Data.Aeson                   (ToJSON)
+import qualified Data.Char                    as Char
+import           Data.Foldable                (forM_)
 import           GHC.Generics                 (Generic)
 import           Text.Pandoc                  (Block (..), Template,
                                                compileTemplate,
@@ -152,8 +154,7 @@ parsePost path = do
   content <- runIO . readMarkdown readerOpts . Text.pack =<< readFile path
   case content of
     Left e -> return $ Left $ ParseError path (Text.pack $ show e)
-    Right (Pandoc meta blocks) -> do
-      return $ parseMeta path meta blocks
+    Right (Pandoc meta blocks) -> return $ parseMeta path meta blocks
   where
     readerOpts =
       def { readerExtensions =
@@ -171,12 +172,37 @@ findPost dir = do
     [p]           -> Right $ dir </> p
     markdownFiles -> Left $ TooManyMDFiles dir markdownFiles
 
+moveAssets :: FilePath -> FilePath -> IO ()
+moveAssets dir targetDir = do
+  -- Create target directory if it doesn't exist
+  createDirectoryIfMissing True targetDir
+
+  -- Get all files in the source directory
+  files <- listDirectory dir
+
+  -- Filter to only include files (not directories) and exclude markdown files
+  assetFiles <- filterM isAssetFile files
+
+  -- Copy each asset file to the target directory
+  forM_ assetFiles $ \file -> do
+    let sourcePath = dir </> file
+    let targetPath = targetDir </> file
+    copyFile sourcePath targetPath
+    putStrLn $ "Copied: " ++ file
+
+  where
+    isAssetFile :: FilePath -> IO Bool
+    isAssetFile file = do
+      let fullPath = dir </> file
+      isFile <- doesFileExist fullPath
+      let isMarkdown = any (`isSuffixOf` map Char.toLower file) [".md", ".markdown"]
+      return (isFile && not isMarkdown)
+
 getPosts :: FilePath -> IO (Either Error [Post [Block]])
-getPosts target = do
-  fmap sequence
-    $ listDirectory target
-        >>= filterM doesDirectoryExist . map (target </>)
-        >>= mapM (findPost >=> either (return . Left) parsePost)
+getPosts target = fmap sequence
+  $ listDirectory target
+      >>= filterM doesDirectoryExist . map (target </>)
+      >>= mapM (findPost >=> either (return . Left) parsePost)
 
 
 data AppTemplates
