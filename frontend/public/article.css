@@ -180,7 +180,7 @@
     color: inherit;
 }
 
-/* Preserve original syntax highlighting - don't override colors */
+/* errors - red bg */
 
 #article-container ul,
 #article-container ol {

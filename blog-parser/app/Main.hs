@@ -8,23 +8,24 @@ module Main where
 import qualified Blog
 
 
-import           Control.Exception      (IOException, catch)
-import           Control.Monad          (when)
+import           Control.Exception        (IOException, catch)
+import           Control.Monad            (when)
 import           Control.Monad.Except
 import           Control.Monad.IO.Class
-import           Data.Foldable          (forM_)
-import           Data.List              (sortBy)
-import           Data.Ord               (comparing)
-import qualified Data.Text.IO           as Text
-import qualified Data.Text.IO           as TIO
-import qualified Javascript             as JS
+import           Data.Foldable            (forM_)
+import           Data.List                (sortBy)
+import           Data.Ord                 (comparing)
+import qualified Data.Text.IO             as Text
+import qualified Data.Text.IO             as TIO
+import qualified Javascript               as JS
 import           Options.Applicative
-import           Post                   (AppTemplates (..), PostMeta (..))
+import           Post                     (AppTemplates (..), PostMeta (..))
 import qualified Post
-import           System.Directory       (createDirectoryIfMissing,
-                                         doesDirectoryExist, removeDirectory)
-import           System.FilePath        (takeBaseName, (</>))
-import           System.FilePath.Posix  ((<.>))
+import           System.Directory         (createDirectoryIfMissing,
+                                           doesDirectoryExist, removeDirectory)
+import           System.FilePath          (takeBaseName, (</>))
+import           System.FilePath.Posix    ((<.>))
+import           Text.Pandoc.Highlighting (kate, styleToCss)
 
 data Args a
   = Args
@@ -86,13 +87,19 @@ mainLogic = do
   liftIO $ do
     Blog.render outputTags tagTemplate blog
     JS.writeJSMetadata jsDir previews
+    writeCSS outputArticles
     forM_ orderedPosts writePost
 
   where
+    css = styleToCss kate
     withArticlePath path post = post { Post.meta = (Post.meta post) { Post.path = path </> takeBaseName (Post.path . Post.meta $ post) <.> "html"}}
     writePost Post.Post{Post.content, Post.meta} = do
       Text.writeFile (Post.path meta) content
       TIO.putStrLn $ "Success: " <> Post.title meta
+    writeCSS path = do
+      let path' = path </> "article" <.> "css"
+      writeFile path' css
+      putStrLn $ "Wrote 'article.css' to '" <> path' <> "'"
 
 main :: IO ()
 main = do

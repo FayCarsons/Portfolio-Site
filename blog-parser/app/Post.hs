@@ -25,15 +25,17 @@ import           System.FilePattern.Directory (getDirectoryFiles)
 import           Data.Aeson                   (ToJSON)
 import           GHC.Generics                 (Generic)
 import           Text.Pandoc                  (Block (..), Template,
-                                               compileTemplate, getTemplate,
-                                               nullMeta, runIO, runPure,
-                                               writePlain)
+                                               compileTemplate,
+                                               defaultMathJaxURL,
+                                               getDefaultExtensions,
+                                               getTemplate, nullMeta, runIO,
+                                               runPure, writePlain)
 import           Text.Pandoc.Builder          (MetaValue (..), ToMetaValue (..))
 import           Text.Pandoc.Definition       (Inline (..), Meta (..),
                                                Pandoc (..), lookupMeta)
 import           Text.Pandoc.Extensions       (Extension (..), enableExtension,
                                                pandocExtensions)
-import           Text.Pandoc.Highlighting     (pygments)
+import           Text.Pandoc.Highlighting     (kate)
 import           Text.Pandoc.Options          (HTMLMathMethod (..), def,
                                                readerExtensions,
                                                writerExtensions,
@@ -153,7 +155,13 @@ parsePost path = do
     Right (Pandoc meta blocks) -> do
       return $ parseMeta path meta blocks
   where
-    readerOpts = def {readerExtensions = enableExtension Ext_yaml_metadata_block pandocExtensions}
+    readerOpts =
+      def { readerExtensions =
+              enableExtension Ext_yaml_metadata_block
+                $ enableExtension Ext_fenced_code_blocks
+                $ enableExtension Ext_fenced_code_attributes
+                $ getDefaultExtensions "markdown"
+          }
 
 findPost :: FilePath -> IO (Either Error FilePath)
 findPost dir = do
@@ -178,8 +186,8 @@ data AppTemplates
 fetchTemplate :: AppTemplates -> IO (Template Text)
 fetchTemplate whichTemplate = do
   let templatePath = case whichTemplate of
-        PostTemplate -> "./blog-parser/post.pandoc"
-        TagTemplate  -> "./blog-parser/tag.pandoc"
+        PostTemplate -> "/Users/faycarsons/Desktop/Code/Javascript/pi-portfolio/blog-parser/post.pandoc"
+        TagTemplate  -> "/Users/faycarsons/Desktop/Code/Javascript/pi-portfolio/blog-parser/tag.pandoc"
   templateText <- fromRight (error $ "Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
   fromRight (error "Cannot compile template: ") <$> compileTemplate "" templateText
 
@@ -192,8 +200,8 @@ renderPost template post =
     writerOpts =
       def
         { writerExtensions = enableExtension Ext_raw_html pandocExtensions,
-          writerHTMLMathMethod = MathJax "",
-          writerHighlightStyle = Just pygments,
+          writerHTMLMathMethod = MathJax defaultMathJaxURL,
+          writerHighlightStyle = Just kate,
           writerTemplate = Just template
         }
     toMeta Post {meta} =
