@@ -26,6 +26,10 @@
           ];
           
           buildPhase = ''
+            export LANG=C.UTF-8
+            export LC_ALL=C.UTF-8
+            export LC_CTYPE=C.UTF-8
+
             echo "Running blog parser to generate HTML files and blogs.json..."
             blog-parser -o frontend/public -t blogs -j frontend/public
             
