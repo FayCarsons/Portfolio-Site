@@ -19,7 +19,7 @@ export async function loadBlogPreviews() {
     previewsContainer.textContent = 'Loading articles...';
 
     try {
-        const response = await fetch('blog-previews.json');
+        const response = await fetch('blogs.json');
         const posts: BlogPost[] = await response.json();
 
         // Clear loading state
@@ -57,8 +57,6 @@ function createBlogPreviewElement(post: BlogPost): HTMLElement {
 
     // Limit tags to 2-3 for space
     const displayTags = post.tags
-    console.log("TAQGS")
-    console.log(displayTags)
 
     article.innerHTML = `
     <h3>
@@ -67,7 +65,7 @@ function createBlogPreviewElement(post: BlogPost): HTMLElement {
     <div class="blog-preview-meta">
       <span class="blog-preview-date">${formattedDate}</span>
       <div class="blog-preview-tags">
-        ${displayTags.map(tag => `<span class="blog-preview-tag">${tag}</span>`).join('')}
+        ${displayTags.map(tag => `<a href=\'${tag}\'><span class="blog-preview-tag">${tag}</span></a>`).join('')}
       </div>
     </div>
     <p class="blog-preview-excerpt">${post.content}</p>

@@ -42,7 +42,7 @@
           
           PKG_CONFIG_PATH = "${pkgs.zlib.dev}/lib/pkgconfig";
           
-          buildPhase = ''
+        buildPhase = ''
             export HOME=$TMPDIR
             mkdir -p $HOME/.cabal
             
@@ -52,8 +52,18 @@
             cabal update
             cabal configure
             cabal build
+            
+            echo "Running blog parser to generate HTML files and blogs.json..."
+            cabal run blog-parser -- -o ../frontend -t ../blogs -j ../frontend
+            
             cd ..
-          '';
+            
+            echo "Building frontend (with generated blog files)..."
+            cd frontend
+            export npm_config_cache=$TMPDIR/.npm
+            npm ci
+            npm run build
+        '';
           
           installPhase = ''
             # Copy the pre-built frontend

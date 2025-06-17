@@ -1,8 +1,7 @@
 --- 
 title: Efficient key bindings with Tries
 date: 11-17-2024
-tags: OCaml, Design, Optimization
-category: Programming
+tags: OCaml, Design, Optimization, Programming
 ---
 
 I love working with trees. There's something very satisfying about recursive 

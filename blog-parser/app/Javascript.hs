@@ -1,5 +1,4 @@
-{-# LANGUAGE DeriveGeneric  #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Javascript (writeJSMetadata, Preview, fromPost) where
 
 import           Data.Aeson      (ToJSON, encodeFile)
@@ -10,6 +9,7 @@ import           GHC.Generics    (Generic)
 import           Post            (Post)
 import qualified Post            as Posts
 import           System.FilePath ((</>))
+import           Text.Pandoc     (Block)
 
 data Preview
   = Preview
@@ -22,7 +22,7 @@ data Preview
 
 instance ToJSON Preview
 
-fromPost :: Post -> Preview
+fromPost :: Post [Block] -> Preview
 fromPost post =
   Preview
     (Posts.title meta)
@@ -36,4 +36,4 @@ fromPost post =
 
 
 writeJSMetadata :: FilePath -> [Preview] -> IO ()
-writeJSMetadata jsDir = encodeFile $ jsDir </> "blog-previews.json"
+writeJSMetadata jsDir = encodeFile $ jsDir </> "blogs.json"

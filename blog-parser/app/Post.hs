@@ -2,7 +2,7 @@
 {-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
-module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview) where
+module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview, Error(..)) where
 
 import           Control.Monad                (filterM, (>=>))
 import           Data.Either                  (fromRight)
@@ -68,21 +68,20 @@ toEither err Nothing = Left err
 lookupEither :: Error -> Text -> Meta -> Either Error MetaValue
 lookupEither err key meta = toEither err $ lookupMeta key meta
 
-data Post
+data Post a
   = Post
-  { content :: [Block],
+  { content :: a,
     meta    :: PostMeta
   }
   deriving (Show)
 
 data PostMeta
   = PostMeta
-  { title    :: Text,
-    tags     :: Set Text,
-    category :: Text,
-    date     :: Day,
-    slug     :: Text,
-    path     :: FilePath
+  { title :: Text,
+    tags  :: Set Text,
+    date  :: Day,
+    slug  :: Text,
+    path  :: FilePath
   }
   deriving (Show, Eq, Generic)
 
@@ -92,18 +91,17 @@ instance Ord PostMeta where
   compare a b = compare (date a) (date b)
 
 instance ToMetaValue PostMeta where
-  toMetaValue Post.PostMeta {Post.title, Post.tags, Post.category, Post.date, Post.slug, Post.path} =
+  toMetaValue Post.PostMeta {Post.title, Post.tags, Post.date, Post.slug, Post.path} =
     MetaMap $
       Map.fromList
         [ ("title", toMetaValue title),
           ("tags", MetaList $ map toMetaValue $ Set.toList tags),
-          ("category", toMetaValue category),
           ("date", toMetaValue $ show date),
           ("slug", toMetaValue slug),
           ("path", toMetaValue path)
         ]
 
-preview :: Post -> Text
+preview :: Post [Block] -> Text
 preview Post{content} =
   case content of
     openingParagraph : _ ->
@@ -133,22 +131,21 @@ mapLeft :: forall a b c. (a -> b) -> Either a c -> Either b c
 mapLeft f (Left e)  = Left $ f e
 mapLeft _ (Right x) = Right x
 
-parseMeta :: FilePath -> Meta -> [Block] -> Either Error Post
+parseMeta :: FilePath -> Meta -> [Block] -> Either Error (Post [Block])
 parseMeta path meta content = do
   title <- plainText <$> lookupEither (MissingFrontmatter path "No title") "title" meta
   date <- lookupEither (MissingFrontmatter path "No date") "date" meta >>= parseDate path . plainText
   tags <- Set.fromList . map Text.strip . Text.splitOn "," . plainText <$> lookupEither (MissingFrontmatter path "No tags") "tags" meta
-  category <- plainText <$> lookupEither (MissingFrontmatter path "No category") "category" meta
   return $
     Post
       { content,
         meta =
-          PostMeta {tags, category, date, path, title, slug}
+          PostMeta {tags, date, path, title, slug}
       }
   where
     slug = Text.pack $ Path.takeBaseName path
 
-parsePost :: FilePath -> IO (Either Error Post)
+parsePost :: FilePath -> IO (Either Error (Post [Block]))
 parsePost path = do
   content <- runIO . readMarkdown readerOpts . Text.pack =<< readFile path
   case content of
@@ -166,7 +163,7 @@ findPost dir = do
     [p]           -> Right $ dir </> p
     markdownFiles -> Left $ TooManyMDFiles dir markdownFiles
 
-getPosts :: FilePath -> IO (Either Error [Post])
+getPosts :: FilePath -> IO (Either Error [Post [Block]])
 getPosts target = do
   fmap sequence
     $ listDirectory target
@@ -183,19 +180,15 @@ fetchTemplate whichTemplate = do
   let templatePath = case whichTemplate of
         PostTemplate -> "post.pandoc"
         TagTemplate  -> "tag.pandoc"
-  templateText <- orError ("Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
-  orError "Cannot compile template: " <$> compileTemplate "" templateText
-  where
-    orError err (Left e) = error $ err <> show e
-    orError _ (Right x)  = x
+  templateText <- fromRight (error $ "Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
+  fromRight (error "Cannot compile template: ") <$> compileTemplate "" templateText
 
-renderPost :: Template Text -> Post -> IO (Either Error (PostMeta, Text))
+renderPost :: Template Text -> Post [Block] -> IO (Either Error (Post Text))
 renderPost template post =
   let write = writeHtml5String writerOpts (Pandoc (toMeta post) (content post))
-   in do
-        rendered <- runIO write <&> mapLeft (WriteError (path $ meta post) . Text.pack . show)
-        return $ rendered >>= \r -> Right (meta post, r)
+   in fmap withRendered <$> runIO write <&> mapLeft (WriteError (path $ meta post) . Text.pack . show)
   where
+    withRendered content  = post { content }
     writerOpts =
       def
         { writerExtensions = enableExtension Ext_raw_html pandocExtensions,
@@ -208,6 +201,5 @@ renderPost template post =
         Map.fromList
           [ ("title", toMetaValue $ title meta),
             ("date", toMetaValue $ show $ date meta),
-            ("tags", toMetaValue $ Set.toList $ tags meta),
-            ("category", toMetaValue $ category meta)
+            ("tags", toMetaValue $ Set.toList $ tags meta)
           ]

@@ -1,23 +1,27 @@
-{-# LANGUAGE NamedFieldPuns    #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications  #-}
-
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE NamedFieldPuns      #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 module Main where
 
 import qualified Blog
-import           Control.Exception   (IOException, catch)
-import           Control.Monad       (forM_)
-import           Data.Bifunctor      (first)
-import           Data.Function       (on)
-import           Data.List           (sortBy)
-import qualified Data.Text.IO        as Text
-import qualified Javascript          as JS
+
+
+import           Control.Exception     (IOException, catch)
+import           Control.Monad.Except
+import           Data.List             (sortBy)
+import           Data.Ord              (comparing)
+import qualified Data.Text.IO          as Text
+import qualified Data.Text.IO          as TIO
+import qualified Javascript            as JS
 import           Options.Applicative
-import           Post                (AppTemplates (..), PostMeta (..))
+import           Post                  (AppTemplates (..), PostMeta (..))
 import qualified Post
-import           System.Directory    (createDirectory, doesDirectoryExist,
-                                      removeDirectory)
-import           System.FilePath     (takeBaseName, (</>))
+import           System.Directory      (createDirectoryIfMissing,
+                                        doesDirectoryExist, removeDirectory)
+import           System.FilePath       (takeBaseName, (</>))
+import           System.FilePath.Posix ((<.>))
 
 data Args a
   = Args
@@ -42,37 +46,54 @@ opts =
     args
     (fullDesc <> progDesc desc)
 
+mapLeft :: (t -> a) -> Either t b -> Either a b
+mapLeft f = \case
+  Left e -> Left (f e)
+  Right x -> Right x
+
+
+mainLogic :: ExceptT Post.Error IO ()
+mainLogic = do
+  cliArgs <- liftIO $ execParser opts
+  posts <- ExceptT $ Post.getPosts (target cliArgs)
+
+  -- Fetch templates concurrently if you want
+  postTemplate <- liftIO $ Post.fetchTemplate PostTemplate
+  tagTemplate <- liftIO $ Post.fetchTemplate TagTemplate
+
+  -- Render all posts, collecting any errors
+  renderedPosts <- ExceptT (sequence <$> traverse (Post.renderPost postTemplate) posts)
+
+  let Args{output = outputBase, jsDir} = cliArgs
+      blog = Blog.fromPosts posts
+      previews = map JS.fromPost posts
+      outputArticles = outputBase </> "articles"
+      outputTags = outputBase </> "tags"
+      orderedPosts = map ( withArticlePath outputArticles ) $ sortBy (comparing $ Post.date . Post.meta) renderedPosts
+
+  -- Handle output directory
+  liftIO $ forM_ [outputArticles, outputTags] $ \path -> do
+    outputExists <- doesDirectoryExist path
+    putStrLn $ "Path '" <> path <> "' exists? [" <> show outputExists <> "]"
+    when outputExists $ do
+      catch @IOException (removeDirectory path) (const $ return ())
+    createDirectoryIfMissing True path
+
+  -- Render everything
+  liftIO $ do
+    Blog.render outputTags tagTemplate blog
+    JS.writeJSMetadata jsDir previews
+    forM_ orderedPosts writePost
+
+  where
+    withArticlePath path post = post { Post.meta = (Post.meta post) { Post.path = path </> takeBaseName (Post.path . Post.meta $ post) <.> "html"}}
+    writePost Post.Post{Post.content, Post.meta} = do
+      Text.writeFile (Post.path meta) content
+      TIO.putStrLn $ "Success: " <> Post.title meta
+
 main :: IO ()
 main = do
-  cliArgs <- execParser opts
-  posts <- Post.getPosts (target cliArgs)
-  case posts of
-      Left err -> error $ show err
-      Right ps -> do
-        postTemplate <- Post.fetchTemplate PostTemplate
-        tagTemplate <- Post.fetchTemplate TagTemplate
-        renderedPosts <- sequence <$> mapM (Post.renderPost postTemplate) ps
-        case renderedPosts of
-          Left e -> print e
-          Right ps' ->
-            let Args{output, jsDir} = cliArgs
-                orderedPosts = map (first $ outputPath output) $ sortBy (compare `on` date . fst) ps'
-                blog = Blog.fromPosts ps
-            in do
-                  outputExists <- doesDirectoryExist output
-                  if outputExists
-                    then
-                      catch @IOException (removeDirectory output) (const $ return ())
-                    else
-                      createDirectory output
-
-                  Blog.render output tagTemplate blog
-
-                  let previews = map JS.fromPost ps
-                    in JS.writeJSMetadata jsDir previews
-                  forM_ orderedPosts (uncurry writePost)
- where
-  outputPath output post = post{path = output </> takeBaseName (path post) ++ ".html"}
-  writePost PostMeta{title, path} content = do
-    Text.writeFile path content
-    putStrLn $ "Success: " <> show title
+  result <- runExceptT mainLogic
+  case result of
+    Left err -> error $ show err
+    Right () -> return ()

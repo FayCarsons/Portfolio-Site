@@ -5,8 +5,8 @@
   </nav>
 </header>
 <main>
-  <h1>$tagOrCategory$$tagOrCategoryElement$</h1>
-  <p>$postCount$ posts with this $tagOrCategory$</p>
+  <h1>Posts with the tag '$tagOrCategoryElement$'</h1>
+  <p>$postCount$ posts with this tag</p>
   <div class="post-list">
   $for(posts)$
   <article class="post-preview">

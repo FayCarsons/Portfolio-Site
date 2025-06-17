@@ -1,0 +1,1 @@
+cabal exec blog-parser -- -t ../blogs -o ../frontend -j ../frontend
