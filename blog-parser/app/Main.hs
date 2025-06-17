@@ -89,19 +89,13 @@ mainLogic = do
   liftIO $ do
     Blog.render outputTags tagTemplate blog
     JS.writeJSMetadata jsDir previews
-    writeCSS outputArticles
     forM_ orderedPosts writePost
 
   where
-    css = styleToCss kate
     withArticlePath path post = post { Post.meta = (Post.meta post) { Post.path = path </> takeBaseName (Post.path . Post.meta $ post) <.> "html"}}
     writePost Post.Post{Post.content, Post.meta} = do
       Text.writeFile (Post.path meta) content
       TIO.putStrLn $ "Success: " <> Post.title meta
-    writeCSS path = do
-      let path' = path </> "article" <.> "css"
-      writeFile path' css
-      putStrLn $ "Wrote 'article.css' to '" <> path' <> "'"
 
 main :: IO ()
 main = do

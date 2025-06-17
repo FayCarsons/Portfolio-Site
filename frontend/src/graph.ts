@@ -19,7 +19,7 @@ export namespace GraphViz {
         centerAttraction: number; // pull toward center
         damping: number;         // friction (0-1)
         maxSpeed: number;        // terminal velocity
-        bounds?: { width: number; height: number };
+        bounds: { width: number; height: number };
     }
 
     export class FDG {
@@ -27,21 +27,22 @@ export namespace GraphViz {
         edges: Edge[] = [];
         options: GraphParams;
 
-        constructor(options: Partial<GraphParams> = {}) {
+        constructor(options: Partial<GraphParams>, private bounds: { width: number, height: number }) {
             this.options = {
                 repulsion: 300,           // Reduced for less aggressive pushing
                 attraction: 0.005,         // Much weaker springs
                 centerAttraction: 0.03,  // Gentle pull to center
                 damping: 0.0001,           // Less damping = longer to settle
-                maxSpeed: 1,             // Slower max speed
+                maxSpeed: 1,
+                bounds,
                 ...options
             };
         }
 
         addNode(x = 0, y = 0, mass = 1): void {
             this.nodes.push({
-                x: x || Math.random() * 400,
-                y: y || Math.random() * 400,
+                x: x || Math.random() * this.bounds.width,
+                y: y || Math.random() * this.bounds.height,
                 vx: 0,
                 vy: 0,
                 mass
@@ -256,18 +257,16 @@ export namespace GraphViz {
 
 
     export function make(canvas: HTMLCanvasElement): { render: () => void, resize: () => void, isCanvas: true } {
-        const { width, height } = canvas;
-        const bounds = { width, height }
-
+        const parent = canvas.parentElement
+        const bounds = { width: parent!.clientWidth, height: parent!.clientHeight }
 
         const graph = new GraphViz.FDG({
-            bounds,
             repulsion: 800,          // Strong repulsion for good spacing
             attraction: 0.08,         // Balanced spring force
             centerAttraction: 0.01, // Very gentle center pull
             damping: 0.5,           // Smooth gradual settling
             maxSpeed: 1
-        })
+        }, bounds)
 
         const renderer = new GraphViz.Renderer(canvas)
         const nNodes = 18

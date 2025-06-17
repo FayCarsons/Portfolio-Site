@@ -31,7 +31,7 @@
             export LC_CTYPE=C.UTF-8
 
             echo "Running blog parser to generate HTML files and blogs.json..."
-            blog-parser -o frontend/public -t blogs -j frontend/public
+            blog-parser -o frontend -t blogs -j frontend
             
             echo "Building frontend..."
             cd frontend

@@ -1,5 +1,4 @@
 import { GraphViz } from "./graph"
-import { loadBlogPreviews } from "./blog";
 import { Shader } from "./shaders/Shader";
 import Isolines from "./sketches/Isolines";
 import Triangles from "./sketches/Triangles";
@@ -10,6 +9,7 @@ import Target from "./sketches/Target";
 import Memory from "./sketches/Memory";
 import Osc from "./sketches/Osc";
 import Conway from "./sketches/Conway";
+import { loadBlogPreviews } from './blog'
 
 function shuffle<T>(xs: T[]): T[] {
   const result = [...xs]
@@ -20,9 +20,6 @@ function shuffle<T>(xs: T[]): T[] {
 
   return result
 }
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', loadBlogPreviews);
 
 const canvases = document.querySelectorAll('.glsl')
 const sketches = [Isolines,

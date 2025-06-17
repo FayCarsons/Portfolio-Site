@@ -1,13 +1,12 @@
-// Types for your blog posts
-interface BlogPost {
-    title: string;
-    date: string;
-    slug: string;
-    tags: string[];
-    content: string;
+
+type Post = {
+    date: string,
+    title: string,
+    slug: string,
+    tags: string[],
+    content: string
 }
 
-// Function to load and render blog previews
 export async function loadBlogPreviews() {
     const previewsContainer = document.getElementById('blog-previews');
 
@@ -20,7 +19,7 @@ export async function loadBlogPreviews() {
 
     try {
         const response = await fetch('blogs.json');
-        const posts: BlogPost[] = await response.json();
+        const posts = await response.json() as Post[];
 
         // Clear loading state
         previewsContainer.className = 'blog-previews';
@@ -42,7 +41,7 @@ export async function loadBlogPreviews() {
 }
 
 // Create a blog preview element
-function createBlogPreviewElement(post: BlogPost): HTMLElement {
+function createBlogPreviewElement(post: Post) {
     console.log("POST")
     console.table(post)
     const article = document.createElement('article');
@@ -74,6 +73,4 @@ function createBlogPreviewElement(post: BlogPost): HTMLElement {
     return article;
 }
 
-
-// Optional: Refresh every 5 minutes if you update posts frequently
-// setInterval(loadBlogPreviews, 5 * 60 * 1000);
+loadBlogPreviews()
