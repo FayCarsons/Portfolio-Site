@@ -58,7 +58,7 @@
             
             cd ..
             
-            echo "Building frontend (with generated blog files)..."
+            echo "Building frontend with generated blog..."
             cd frontend
             export npm_config_cache=$TMPDIR/.npm
             npm ci
