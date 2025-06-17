@@ -10,6 +10,7 @@ import qualified Blog
 
 import           Control.Exception     (IOException, catch)
 import           Control.Monad.Except
+import           Data.Foldable         (forM_)
 import           Data.List             (sortBy)
 import           Data.Ord              (comparing)
 import qualified Data.Text.IO          as Text
