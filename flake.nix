@@ -11,7 +11,6 @@
       let 
         pkgs = nixpkgs.legacyPackages.${system};
         
-        # Pre-build the frontend dependencies
         frontend = pkgs.buildNpmPackage {
           pname = "portfolio-frontend";
           version = "1.0.0";
