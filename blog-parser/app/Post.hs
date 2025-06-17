@@ -186,8 +186,8 @@ data AppTemplates
 fetchTemplate :: AppTemplates -> IO (Template Text)
 fetchTemplate whichTemplate = do
   let templatePath = case whichTemplate of
-        PostTemplate -> "/Users/faycarsons/Desktop/Code/Javascript/pi-portfolio/blog-parser/post.pandoc"
-        TagTemplate  -> "/Users/faycarsons/Desktop/Code/Javascript/pi-portfolio/blog-parser/tag.pandoc"
+        PostTemplate -> "./blog-parser/post.pandoc"
+        TagTemplate  -> "./blog-parser/tag.pandoc"
   templateText <- fromRight (error $ "Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
   fromRight (error "Cannot compile template: ") <$> compileTemplate "" templateText
 
