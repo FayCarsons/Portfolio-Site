@@ -15,7 +15,8 @@ type FeedbackUniforms = {
 }
 
 type DisplayUniforms = {
-    tex: WebGLTexture
+    tex: WebGLTexture,
+    Scale: 1
 }
 
 export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescriptor<FeedbackUniforms>, Shader.ShaderDescriptor<DisplayUniforms>] {
@@ -103,7 +104,8 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
         canvas,
         fragment: displayFragment,
         uniforms: {
-            tex: null as any // Will be set in pre()
+            tex: null as any,
+            Scale: 1
         },
 
         pre: (gl: WebGL2RenderingContext) => {

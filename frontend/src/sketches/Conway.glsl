@@ -36,8 +36,8 @@ void main() {
         fragColor = uvec4(col, 0xFFFFFFFFu);
         return;
     }
-    uint self = at(pos);
 
+    uint self = at(pos);
     uint liveNeighbors = 0u;
 
     for(int i = 0; i < 8; i++) {

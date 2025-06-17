@@ -11,12 +11,16 @@ type ConwayState = {
 }
 
 type ConwayUniforms = {
-    tex: WebGLTexture
+    tex: WebGLTexture,
+    frame: number
 }
 
 type DisplayUniforms = {
-    tex: WebGLTexture
+    tex: WebGLTexture,
+    Scale: number
 }
+
+const Scale = 2
 
 export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescriptor<ConwayUniforms>, Shader.ShaderDescriptor<DisplayUniforms>] {
     // Shared state between feedback and display shaders
@@ -32,8 +36,8 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
         }
 
         const desc = [{
-            width: canvas.width,
-            height: canvas.height,
+            width: canvas.width / Scale,
+            height: canvas.height / Scale,
             format: gl.RGBA_INTEGER,
             internalFormat: gl.RGBA32UI,
             type: gl.UNSIGNED_INT,
@@ -42,8 +46,8 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
             wrap: gl.CLAMP_TO_EDGE,
         }]
 
-        state.front = TWGL.createFramebufferInfo(gl, desc, canvas.width, canvas.height)
-        state.back = TWGL.createFramebufferInfo(gl, desc, canvas.width, canvas.height)
+        state.front = TWGL.createFramebufferInfo(gl, desc, canvas.width / Scale, canvas.height / Scale)
+        state.back = TWGL.createFramebufferInfo(gl, desc, canvas.width / Scale, canvas.height / Scale)
 
         if (!(state.front && state.back)) throw new Error('Cannot create framebuffers')
 
@@ -71,7 +75,8 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
         canvas,
         fragment: conwayFragment,
         uniforms: {
-            tex: null as any, // Will be set in pre()
+            tex: null as any,
+            frame: 0,
         },
 
         init: (gl: WebGL2RenderingContext) => {
@@ -88,7 +93,8 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
         },
 
         post: (_: WebGL2RenderingContext) => {
-            state.swap!()
+            if (gameOfLife.uniforms!.frame! % 8 == 3) state.swap!()
+            gameOfLife.uniforms!.frame++
         },
 
         resize: (gl: WebGL2RenderingContext) => {
@@ -103,7 +109,8 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
         canvas,
         fragment: display,
         uniforms: {
-            tex: null as any // Will be set in pre()
+            tex: null as any,
+            Scale
         },
 
         pre: (gl: WebGL2RenderingContext) => {
