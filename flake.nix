@@ -27,17 +27,21 @@
           
           buildPhase = ''
             echo "Running blog parser to generate HTML files and blogs.json..."
-            blog-parser -o frontend/articles -t blogs -j frontend
+            blog-parser -o frontend/public -t blogs -j frontend/public
             
             echo "Building frontend..."
             cd frontend
+
             export npm_config_cache=$TMPDIR/.npm
-            npm ci
-            npm run build
+            export npm_config_strict_ssl=false
+            export NODE_TLS_REJECT_UNAUTHORIZED=0
+
+            npm ci --verbose
+            npm run build --verbose
           '';
           
           installPhase = ''
-            cp -r frontend/dist $out
+            cp -r dist $out
           '';
         };
       });

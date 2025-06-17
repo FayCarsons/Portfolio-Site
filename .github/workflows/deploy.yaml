@@ -25,7 +25,7 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }} 
       
       - name: Build with Nix
-        run: nix build
+        run: nix build --option sandbox false
       
       - uses: actions/configure-pages@v4
       

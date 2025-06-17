@@ -8,21 +8,23 @@ module Main where
 import qualified Blog
 
 
-import           Control.Exception     (IOException, catch)
+import           Control.Exception      (IOException, catch)
+import           Control.Monad          (when)
 import           Control.Monad.Except
-import           Data.Foldable         (forM_)
-import           Data.List             (sortBy)
-import           Data.Ord              (comparing)
-import qualified Data.Text.IO          as Text
-import qualified Data.Text.IO          as TIO
-import qualified Javascript            as JS
+import           Control.Monad.IO.Class
+import           Data.Foldable          (forM_)
+import           Data.List              (sortBy)
+import           Data.Ord               (comparing)
+import qualified Data.Text.IO           as Text
+import qualified Data.Text.IO           as TIO
+import qualified Javascript             as JS
 import           Options.Applicative
-import           Post                  (AppTemplates (..), PostMeta (..))
+import           Post                   (AppTemplates (..), PostMeta (..))
 import qualified Post
-import           System.Directory      (createDirectoryIfMissing,
-                                        doesDirectoryExist, removeDirectory)
-import           System.FilePath       (takeBaseName, (</>))
-import           System.FilePath.Posix ((<.>))
+import           System.Directory       (createDirectoryIfMissing,
+                                         doesDirectoryExist, removeDirectory)
+import           System.FilePath        (takeBaseName, (</>))
+import           System.FilePath.Posix  ((<.>))
 
 data Args a
   = Args
