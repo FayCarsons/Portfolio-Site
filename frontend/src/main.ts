@@ -11,6 +11,8 @@ import Osc from "./sketches/Osc";
 import Conway from "./sketches/Conway";
 import { loadBlogPreviews } from './blog'
 
+document.addEventListener('DOMContentLoaded', loadBlogPreviews)
+
 function shuffle<T>(xs: T[]): T[] {
   const result = [...xs]
   for (let i = result.length - 1; i > 0; i--) {
