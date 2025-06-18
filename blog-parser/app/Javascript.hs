@@ -1,15 +1,16 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Javascript (writeJSMetadata, Preview, fromPost) where
 
-import           Data.Aeson      (ToJSON, encodeFile)
-import           Data.Foldable   (toList)
-import           Data.Text       (Text)
-import           Data.Time       (Day)
-import           GHC.Generics    (Generic)
-import           Post            (Post)
-import qualified Post            as Posts
-import           System.FilePath ((</>))
-import           Text.Pandoc     (Block)
+import           Data.Aeson       (ToJSON, encodeFile)
+import           Data.Foldable    (toList)
+import           Data.Text        (Text)
+import           Data.Time        (Day)
+import           GHC.Generics     (Generic)
+import           Post             (Post)
+import qualified Post             as Posts
+import           System.Directory (createDirectoryIfMissing, doesFileExist)
+import           System.FilePath  (takeDirectory, (<.>), (</>))
+import           Text.Pandoc      (Block)
 
 data Preview
   = Preview
@@ -34,6 +35,6 @@ fromPost post =
     meta = Posts.meta post
     preview = Posts.preview post
 
-
 writeJSMetadata :: FilePath -> [Preview] -> IO ()
-writeJSMetadata jsDir = encodeFile $ jsDir </> "blogs.json"
+writeJSMetadata jsDir previews  = createDirectoryIfMissing True jsDir >> encodeFile dir previews
+   where dir = jsDir </> "blogs" <.> "json"
