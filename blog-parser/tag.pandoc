@@ -19,7 +19,7 @@
   <div class="post-list">
   $for(posts)$
   <article class="post-preview">
-    <h2><a href="$posts.slug$">$posts.title$</a></h2>
+    <h2><a href="/articles/$posts.slug$">$posts.title$</a></h2>
     <div class="post-meta">
       <time datetime="$posts.date$">$posts.date$</time>
     </div>
