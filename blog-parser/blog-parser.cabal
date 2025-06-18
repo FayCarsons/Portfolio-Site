@@ -55,7 +55,8 @@ executable blog-parser
     import:           warnings
     main-is:          Main.hs
     other-modules: Post, Blog, Javascript
-    build-depends:    base >= 4.16
+    build-depends:    process 
+                      , base >= 4.16
                       , text
                       , time
                       , directory

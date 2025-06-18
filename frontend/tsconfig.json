@@ -24,7 +24,7 @@
   },
   "include": [
     "src",
-    "src/loadShader.js",
+    "src/loadShader.ts",
     "public/blog.js"
   ]
 }

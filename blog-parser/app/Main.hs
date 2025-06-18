@@ -92,7 +92,9 @@ mainLogic = do
     forM_ orderedPosts writePost
 
   where
-    withArticlePath path post = post { Post.meta = (Post.meta post) { Post.path = path </> takeBaseName (Post.path . Post.meta $ post) <.> "html"}}
+    withMetaPath path meta = meta { Post.path = path </> takeBaseName (Post.path meta) <.> "html"}
+    withArticlePath path post =
+      post { Post.meta = withMetaPath path (Post.meta post) }
     writePost Post.Post{Post.content, Post.meta} = do
       Text.writeFile (Post.path meta) content
       TIO.putStrLn $ "Success: " <> Post.title meta

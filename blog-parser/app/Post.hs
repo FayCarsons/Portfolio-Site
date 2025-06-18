@@ -5,7 +5,10 @@
 module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview, Error(..), moveAssets) where
 
 import           Control.Monad                (filterM, (>=>))
+import           Data.Aeson                   (ToJSON)
+import qualified Data.Char                    as Char
 import           Data.Either                  (fromRight)
+import           Data.Foldable                (forM_)
 import           Data.Functor                 ((<&>))
 import           Data.List                    (isSuffixOf)
 import qualified Data.Map                     as Map
@@ -15,17 +18,12 @@ import           Data.Text                    (Text)
 import qualified Data.Text                    as Text
 import           Data.Time                    (Day)
 import qualified Data.Time                    as Time
-import           System.Directory
-import           System.FilePath
--- Paths
-import qualified System.FilePath              as Path
-import           System.FilePattern.Directory (getDirectoryFiles)
--- Pandoc
-
-import           Data.Aeson                   (ToJSON)
-import qualified Data.Char                    as Char
-import           Data.Foldable                (forM_)
 import           GHC.Generics                 (Generic)
+import           System.Directory
+import qualified System.FilePath              as Path
+import           System.FilePath
+import           System.FilePattern.Directory (getDirectoryFiles)
+import           System.Process               (callProcess)
 import           Text.Pandoc                  (Block (..), Template,
                                                compileTemplate,
                                                defaultMathJaxURL,
@@ -172,31 +170,36 @@ findPost dir = do
     [p]           -> Right $ dir </> p
     markdownFiles -> Left $ TooManyMDFiles dir markdownFiles
 
+copyAsset :: FilePath -> FilePath -> FilePath -> IO ()
+copyAsset sourceDir outputDir file = do
+  let sourcePath = sourceDir </> file
+  let targetPath = outputDir </> file
+  callProcess "cp" [sourcePath, targetPath]
+  putStrLn $ "Copied: " ++ file
+
+logM :: (Show a) => String -> a -> IO a
+logM label x = do
+  putStrLn $ label <> ": " <> show x
+  return x
+
 moveAssets :: FilePath -> FilePath -> IO ()
-moveAssets dir targetDir = do
-  -- Create target directory if it doesn't exist
-  createDirectoryIfMissing True targetDir
+moveAssets sourceDir targetDir = do
+  putStrLn $ "Source directory: " ++ sourceDir
+  putStrLn $ "Target directory: " ++ targetDir
+  putStrLn $ "Output directory: " ++ outputDir
 
-  -- Get all files in the source directory
-  files <- listDirectory dir
-
-  -- Filter to only include files (not directories) and exclude markdown files
-  assetFiles <- filterM isAssetFile files
-
-  -- Copy each asset file to the target directory
-  forM_ assetFiles $ \file -> do
-    let sourcePath = dir </> file
-    let targetPath = targetDir </> file
-    copyFile sourcePath targetPath
-    putStrLn $ "Copied: " ++ file
-
+  createDirectoryIfMissing True outputDir
+    >> listDirectory sourceDir
+    >>= logM "Whole directory"
+    >>= filterM isAssetFile
+    >>= logM "Just asset files"
+    >>= mapM_ (copyAsset sourceDir outputDir)
   where
-    isAssetFile :: FilePath -> IO Bool
     isAssetFile file = do
-      let fullPath = dir </> file
-      isFile <- doesFileExist fullPath
-      let isMarkdown = any (`isSuffixOf` map Char.toLower file) [".md", ".markdown"]
-      return (isFile && not isMarkdown)
+      (&&)
+        <$> doesFileExist (sourceDir </> file)
+        <*> pure ("md" /= takeExtension file)
+    outputDir = targetDir </> "public"
 
 getPosts :: FilePath -> IO (Either Error [Post [Block]])
 getPosts target = fmap sequence
