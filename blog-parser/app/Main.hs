@@ -9,7 +9,7 @@ import qualified Blog
 
 
 import           Control.Exception        (IOException, catch)
-import           Control.Monad            (when)
+import           Control.Monad            (unless, when)
 import           Control.Monad.Except
 import           Control.Monad.IO.Class
 import           Data.Foldable            (forM_)
@@ -22,7 +22,8 @@ import           Options.Applicative
 import           Post                     (AppTemplates (..), PostMeta (..))
 import qualified Post
 import           System.Directory         (createDirectoryIfMissing,
-                                           doesDirectoryExist, removeDirectory)
+                                           doesDirectoryExist, doesFileExist,
+                                           removeDirectory)
 import           System.FilePath          (takeBaseName, (</>))
 import           System.FilePath.Posix    ((<.>))
 import           Text.Pandoc.Highlighting (kate, styleToCss)
@@ -76,14 +77,18 @@ mainLogic = do
       orderedPosts = map ( withArticlePath outputArticles ) $ sortBy (comparing $ Post.date . Post.meta) renderedPosts
 
   -- Handle output directory
-  liftIO $ forM_ [outputArticles, outputTags] $ \path -> do
-    outputExists <- doesDirectoryExist path
-    putStrLn $ "Path '" <> path <> "' exists? [" <> show outputExists <> "]"
-    when outputExists $ do
-      catch @IOException (removeDirectory path) (const $ return ())
-    createDirectoryIfMissing True path
-
-  liftIO $ Post.moveAssets (target cliArgs) outputBase
+  liftIO $ do
+    forM_ [outputArticles, outputTags] $ \path -> do
+      outputExists <- doesDirectoryExist path
+      putStrLn $ "Path '" <> path <> "' exists? [" <> show outputExists <> "]"
+      when outputExists $ do
+        catch @IOException (removeDirectory path) (const $ return ())
+      createDirectoryIfMissing True path
+    Post.moveAssets (target cliArgs) outputBase
+    let cssCodeStylingPath = jsDir </> "code" <.> "css"
+    cssCodeStylingExists <- doesFileExist cssCodeStylingPath
+    unless cssCodeStylingExists
+      $ writeFile cssCodeStylingPath (styleToCss kate)
 
   -- Render everything
   liftIO $ do

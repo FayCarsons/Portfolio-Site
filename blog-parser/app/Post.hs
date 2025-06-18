@@ -6,11 +6,8 @@ module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, 
 
 import           Control.Monad                (filterM, foldM, (>=>))
 import           Data.Aeson                   (ToJSON)
-import qualified Data.Char                    as Char
 import           Data.Either                  (fromRight)
-import           Data.Foldable                (forM_)
 import           Data.Functor                 ((<&>))
-import           Data.List                    (isSuffixOf)
 import qualified Data.Map                     as Map
 import           Data.Set                     (Set)
 import qualified Data.Set                     as Set
@@ -19,11 +16,11 @@ import qualified Data.Text                    as Text
 import           Data.Time                    (Day)
 import qualified Data.Time                    as Time
 import           GHC.Generics                 (Generic)
+import           Options.Applicative          (style)
 import           System.Directory
 import qualified System.FilePath              as Path
 import           System.FilePath
 import           System.FilePattern.Directory (getDirectoryFiles)
-import           System.Process               (callProcess)
 import           Text.Pandoc                  (Block (..), Template,
                                                compileTemplate,
                                                defaultMathJaxURL,
@@ -222,14 +219,18 @@ getPosts target = fmap sequence
 data AppTemplates
   = PostTemplate
   | TagTemplate
+  deriving (Show, Eq)
 
 fetchTemplate :: AppTemplates -> IO (Template Text)
 fetchTemplate whichTemplate = do
-  let templatePath = case whichTemplate of
-        PostTemplate -> "./blog-parser/post.pandoc"
-        TagTemplate  -> "./blog-parser/tag.pandoc"
-  templateText <- fromRight (error $ "Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate templatePath)
-  fromRight (error "Cannot compile template: ") <$> compileTemplate "" templateText
+  templatePath <- findFile [".", "..", "./blog-parser"] $ case whichTemplate of
+    PostTemplate -> "post.pandoc"
+    TagTemplate  -> "tag.pandoc"
+  case templatePath of
+    Just path -> do
+      templateText <- fromRight (error $ "Cannot read '" <> show templatePath <> "': ") <$> runIO (getTemplate path)
+      fromRight (error "Cannot compile template: ") <$> compileTemplate "" templateText
+    Nothing -> error $ "No '" <> show whichTemplate <> "' template found"
 
 renderPost :: Template Text -> Post [Block] -> IO (Either Error (Post Text))
 renderPost template post =

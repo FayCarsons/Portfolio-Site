@@ -1,16 +1,21 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Javascript (writeJSMetadata, Preview, fromPost) where
 
-import           Data.Aeson       (ToJSON, encodeFile)
-import           Data.Foldable    (toList)
-import           Data.Text        (Text)
-import           Data.Time        (Day)
-import           GHC.Generics     (Generic)
-import           Post             (Post)
-import qualified Post             as Posts
-import           System.Directory (createDirectoryIfMissing, doesFileExist)
-import           System.FilePath  (takeDirectory, (<.>), (</>))
-import           Text.Pandoc      (Block)
+import           Control.Exception (SomeException)
+import           Control.Monad     (when)
+import           Data.Aeson        (ToJSON, encodeFile)
+import           Data.Foldable     (toList)
+import           Data.Text         (Text)
+import           Data.Time         (Day)
+import           GHC.Generics      (Generic)
+import           GHC.IO            (catch)
+import           Post              (Post)
+import qualified Post              as Posts
+import           System.Directory  (createDirectoryIfMissing, doesFileExist,
+                                    removeFile)
+import           System.FilePath   ((<.>), (</>))
+import           Text.Pandoc       (Block)
 
 data Preview
   = Preview
@@ -36,5 +41,15 @@ fromPost post =
     preview = Posts.preview post
 
 writeJSMetadata :: FilePath -> [Preview] -> IO ()
-writeJSMetadata jsDir previews  = createDirectoryIfMissing True jsDir >> encodeFile dir previews
-   where dir = jsDir </> "blogs" <.> "json"
+writeJSMetadata jsDir previews =
+  createDirectoryIfMissing True jsDir
+    >> deleteIfExists dir
+    >> encodeFile dir previews
+  `catch` onFailure
+  where
+  dir = jsDir </> "blogs" <.> "json"
+  deleteIfExists filePath = do
+    exists <- doesFileExist filePath
+    when exists $ removeFile filePath
+  onFailure :: SomeException -> IO ()
+  onFailure e = putStrLn $ "Failed to write JSON metadata: " <> show e

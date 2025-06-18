@@ -5,8 +5,496 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fay Carsons</title>
-    <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            font-family: 'Outfit';
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f8f8;
+            min-height: 100vh;
+            padding: 12px;
+            color: #1a1a1a;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Articles Container */
+        .bento-box.articles {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 900px;
+            min-height: calc(100vh - 24px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bento-box.articles:hover {
+            transform: translateY(-1px);
+            border-color: #d0d0d0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .bento-box.articles::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #888888, transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bento-box.articles:hover::before {
+            opacity: 0.6;
+        }
+
+        /* Technical data overlay matching home page */
+        .bento-box.articles::after {
+            content: '│ ║ ▌ ▐ █ ░ ▒ ▓ │ ║ ▌ ▐ █ ░ ▒ ▓ │ ║ ▌ ▐ █ ░ ▒ ▓';
+            position: absolute;
+            top: 0;
+            right: -30px;
+            height: 100%;
+            width: 30px;
+            color: rgba(0, 0, 0, 0.03);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px;
+            line-height: 12px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            animation: dataStream 12s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Status indicators */
+        .status-indicators {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+            z-index: 6;
+        }
+
+        .status-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #999999;
+            animation: pulse 3s infinite;
+        }
+
+        .status-dot:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .status-dot:nth-child(3) {
+            animation-delay: 2s;
+        }
+
+        /* Articles Header */
+        .bento-box.articles h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: #0a0a0a;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 4;
+        }
+
+        .bento-box.articles h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, #888888, transparent);
+            margin-top: 12px;
+            opacity: 0.6;
+        }
+
+        /* Articles Container */
+        .articles-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex: 1;
+            position: relative;
+            z-index: 4;
+        }
+
+        /* Blog Previews */
+        .blog-previews {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-right: 8px;
+        }
+
+        /* Custom scrollbar */
+        .blog-previews::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .blog-previews::-webkit-scrollbar-track {
+            background: #f8f8f8;
+            border-radius: 3px;
+        }
+
+        .blog-previews::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 3px;
+            transition: background 0.3s ease;
+        }
+
+        .blog-previews::-webkit-scrollbar-thumb:hover {
+            background: #888888;
+        }
+
+        /* Blog Preview Items (populated by TypeScript) */
+        .blog-preview {
+            padding: 20px;
+            border: 1px solid #f5f5f5;
+            border-radius: 6px;
+            background: #fdfdfd;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: block;
+        }
+
+        .blog-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #e8e8e8, #d0d0d0);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .blog-preview:hover {
+            transform: translateY(-1px);
+            border-color: #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background: #ffffff;
+        }
+
+        .blog-preview:hover::before {
+            opacity: 1;
+        }
+
+        .blog-preview-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .blog-preview h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-weight: 600;
+            line-height: 1.3;
+            transition: color 0.2s ease;
+        }
+
+        .blog-preview-link:hover h3 {
+            color: #666666;
+        }
+
+        .blog-preview-date {
+            font-size: 0.85rem;
+            color: #888888;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            display: block;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .blog-preview-date::before {
+            content: '[';
+            color: #666666;
+            margin-right: 2px;
+        }
+
+        .blog-preview-date::after {
+            content: ']';
+            color: #666666;
+            margin-left: 2px;
+        }
+
+        .blog-preview-excerpt {
+            font-size: 0.9rem;
+            color: #666666;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+        }
+
+        .blog-preview-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .blog-preview-tags .blog-preview-link {
+            margin: 0;
+            display: inline-block;
+        }
+
+        .blog-preview-tag {
+            font-size: 0.7rem;
+            background: #f0f0f0;
+            color: #666666;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .blog-preview-tag:hover {
+            background: #e8e8e8;
+            color: #1a1a1a;
+        }
+
+        /* Articles Footer */
+        .articles-footer {
+            flex-shrink: 0;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            background: #ffffff;
+            position: relative;
+            z-index: 4;
+        }
+
+        .view-all-link {
+            font-size: 0.9rem;
+            color: #888888;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 0;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .view-all-link:hover {
+            color: #1a1a1a;
+            transform: translateX(4px);
+        }
+
+        .view-all-link::before {
+            content: '> ';
+            color: #666666;
+            margin-right: 4px;
+            opacity: 0.7;
+        }
+
+        .view-all-link::after {
+            content: '';
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Loading state */
+        .blog-previews.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888888;
+            font-size: 0.9rem;
+            background: #fdfdfd;
+            border: 1px solid #f5f5f5;
+            border-radius: 6px;
+            padding: 40px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .blog-previews.loading::before {
+            content: '○';
+            margin-right: 12px;
+            animation: spin 1s linear infinite;
+        }
+
+        .blog-previews.loading::after {
+            content: '_';
+            color: #333333;
+            animation: blink 1.5s infinite;
+            margin-left: 8px;
+        }
+
+        /* Empty state */
+        .blog-previews.empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #888888;
+            text-align: center;
+        }
+
+        .blog-previews.empty::before {
+            content: '[ NO ARTICLES FOUND ]';
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        /* Animations */
+        @keyframes dataStream {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+
+            .bento-box.articles {
+                padding: 24px;
+                min-height: calc(100vh - 16px);
+            }
+
+            .bento-box.articles h2 {
+                font-size: 2rem;
+                margin-bottom: 20px;
+            }
+
+            .blog-preview {
+                padding: 16px;
+            }
+
+            .blog-previews {
+                padding-right: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bento-box.articles {
+                padding: 16px;
+            }
+
+            .bento-box.articles h2 {
+                font-size: 1.8rem;
+            }
+
+            .blog-preview {
+                padding: 12px;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -15,9 +503,6 @@
         <div class="articles-container">
             <div id="blog-previews" class="blog-previews">
                 <!-- Populated by TypeScript -->
-            </div>
-            <div class="articles-footer">
-                <a href="/blog" class="view-all-link">View all articles →</a>
             </div>
         </div>
     </div>
