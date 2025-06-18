@@ -75,7 +75,7 @@ we've got a lot of key bindings, that's going to get slow.
 
 ## Enter the Trie
 
-![Trie diagram](Trie.svg)
+![Trie diagram](/Trie.svg)
 
 This is where tries come in! Think of a trie as a tree where each path from root
 to leaf spells out a sequence - in our app's case, a sequence of keys that maps to an
