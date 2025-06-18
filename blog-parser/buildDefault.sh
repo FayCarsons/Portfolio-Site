@@ -1,1 +1,1 @@
-cabal run blog-parser -- -o frontend -t blogs -j frontend/public
+cabal run blog-parser -- -o ../frontend -t ../blogs -j ../frontend/public

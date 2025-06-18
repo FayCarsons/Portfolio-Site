@@ -4,7 +4,7 @@
 {-# LANGUAGE RankNTypes        #-}
 module Post (Post (..), PostMeta (..), AppTemplates (..), getPosts, renderPost, fetchTemplate, preview, Error(..), moveAssets) where
 
-import           Control.Monad                (filterM, (>=>))
+import           Control.Monad                (filterM, foldM, (>=>))
 import           Data.Aeson                   (ToJSON)
 import qualified Data.Char                    as Char
 import           Data.Either                  (fromRight)
@@ -170,17 +170,35 @@ findPost dir = do
     [p]           -> Right $ dir </> p
     markdownFiles -> Left $ TooManyMDFiles dir markdownFiles
 
-copyAsset :: FilePath -> FilePath -> FilePath -> IO ()
-copyAsset sourceDir outputDir file = do
-  let sourcePath = sourceDir </> file
-  let targetPath = outputDir </> file
-  callProcess "cp" [sourcePath, targetPath]
-  putStrLn $ "Copied: " ++ file
+filterPartition :: (Monad m) => (a -> m Bool) -> (a -> m Bool) -> [a] -> m ([a], [a])
+filterPartition left right = foldM route ([], [])
+  where
+    route (xs, ys) z = do
+      isLeft <- left z
+      isRight <- right z
+      return
+        $ if isLeft
+            then (z:xs, ys)
+            else if isRight
+              then (xs, z:ys)
+              else (xs, ys)
 
-logM :: (Show a) => String -> a -> IO a
-logM label x = do
-  putStrLn $ label <> ": " <> show x
-  return x
+flattenAssets :: FilePath -> IO [FilePath]
+flattenAssets dir = do
+  (assetFiles, directories) <- listDirectory dir >>= filterPartition isAssetFile (doesDirectoryExist . (dir </>))
+  (++ map (dir </>) assetFiles) . concat <$> mapM (flattenAssets . (dir </>)) directories
+  where
+    isAssetFile file = do
+      (&&)
+        <$> doesFileExist (dir </> file)
+        <*> pure (".md" /= takeExtension file)
+
+copyAsset :: FilePath -> FilePath -> IO ()
+copyAsset outputDir file = do
+  let sourcePath = file
+  let targetPath = outputDir </> takeFileName file
+  copyFile sourcePath targetPath
+  putStrLn $ "Copied: " ++ file
 
 moveAssets :: FilePath -> FilePath -> IO ()
 moveAssets sourceDir targetDir = do
@@ -189,16 +207,9 @@ moveAssets sourceDir targetDir = do
   putStrLn $ "Output directory: " ++ outputDir
 
   createDirectoryIfMissing True outputDir
-    >> listDirectory sourceDir
-    >>= logM "Whole directory"
-    >>= filterM isAssetFile
-    >>= logM "Just asset files"
-    >>= mapM_ (copyAsset sourceDir outputDir)
+    >> flattenAssets sourceDir
+    >>= mapM_ (copyAsset outputDir)
   where
-    isAssetFile file = do
-      (&&)
-        <$> doesFileExist (sourceDir </> file)
-        <*> pure ("md" /= takeExtension file)
     outputDir = targetDir </> "public"
 
 getPosts :: FilePath -> IO (Either Error [Post [Block]])
