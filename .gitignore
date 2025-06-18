@@ -30,4 +30,3 @@ blog-parser/dist-newstyle
 backend/target
 blog-parser/test/*
 blog-parser/test
-flake.lock
