@@ -72,6 +72,7 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
 
     // FEEDBACK SHADER - renders to framebuffers
     const gameOfLife: Shader.ShaderDescriptor<ConwayUniforms> = {
+        title: "Conway",
         canvas,
         fragment: conwayFragment,
         uniforms: {
@@ -106,6 +107,7 @@ export default function Conway(canvas: HTMLCanvasElement): [Shader.ShaderDescrip
 
     // DISPLAY SHADER - renders feedback result to canvas
     const displayShader: Shader.ShaderDescriptor<DisplayUniforms> = {
+        title: "Conway",
         canvas,
         fragment: display,
         uniforms: {

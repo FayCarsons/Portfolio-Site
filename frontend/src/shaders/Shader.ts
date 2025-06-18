@@ -17,6 +17,7 @@ export namespace Shader {
     }
 
     export interface ShaderDescriptor<T = {}> {
+        title: string
         canvas: HTMLCanvasElement
         fragment: string
         uniforms?: T
@@ -92,13 +93,14 @@ export namespace Shader {
     ): () => void {
         const shaders = canvases
             .flatMap((canvas: HTMLCanvasElement, idx: number) => {
-                const builder = initFns[idx]
-                const shaderName = builder.name
-                canvas.addEventListener('click', () =>
-                    window.location.href = `shader.html?shader=${shaderName}`
-                )
+                const descriptor = initFns[idx](canvas)
+                if ("title" in descriptor || Array.isArray(descriptor))
+                    canvas.addEventListener('click', () =>
+                        window.location.href = `shader.html?shader=${Array.isArray(descriptor) ? descriptor[0].title : descriptor.title}`
+                    )
 
-                return builder(canvas)
+                return descriptor
+
             })
             .map(make)
 

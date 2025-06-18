@@ -69,6 +69,7 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
 
     // FEEDBACK SHADER - renders to framebuffers
     const feedbackShader: Shader.ShaderDescriptor<FeedbackUniforms> = {
+        title: "Feedback",
         canvas,
         fragment: feedbackFragment,
         uniforms: {
@@ -101,6 +102,7 @@ export default function Feedback(canvas: HTMLCanvasElement): [Shader.ShaderDescr
 
     // DISPLAY SHADER - renders feedback result to canvas
     const displayShader: Shader.ShaderDescriptor<DisplayUniforms> = {
+        title: "Feedback",
         canvas,
         fragment: displayFragment,
         uniforms: {
