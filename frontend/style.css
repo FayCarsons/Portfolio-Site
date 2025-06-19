@@ -725,6 +725,10 @@ body {
     transition: all 0.3s ease;
 }
 
+#TexelPlex {
+    background: #f8f8f8;
+}
+
 .project-card:hover .project-preview {
     border-color: #d0d0d0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
