@@ -10,6 +10,7 @@ import Memory from "./sketches/Memory";
 import Osc from "./sketches/Osc";
 import Conway from "./sketches/Conway";
 import { loadBlogPreviews } from './blog'
+import Lambda from "./sketches/Lambda";
 
 document.addEventListener('DOMContentLoaded', loadBlogPreviews)
 
@@ -40,10 +41,13 @@ const render = Shader.toRenderer(
   Array.from(canvases) as HTMLCanvasElement[]
 )
 
+const texelPlexCanvas = document.getElementById('TexelPlex')! as HTMLCanvasElement
+const texelPlexLambda = Shader.make(Lambda(texelPlexCanvas))
+
 // Animation loop
 function animate() {
   render()
+  texelPlexLambda?.render()
   requestAnimationFrame(animate)
 }
-
 animate()
