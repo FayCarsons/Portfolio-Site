@@ -185,12 +185,6 @@ body {
   line-height: 1.7;
 }
 
-#article-container p:first-child {
-  font-size: 1.1rem;
-  color: #2a2a2a;
-  font-weight: 400;
-}
-
 /* Headings */
 #article-container h1,
 #article-container h2,
