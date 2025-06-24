@@ -7,6 +7,10 @@ type Post = {
     content: string
 }
 
+function compareDates(a: Post, b: Post): number {
+    return new Date(b.date).getTime() - new Date(a.date).getTime()
+}
+
 export async function loadBlogPreviews() {
     const previewsContainer = document.getElementById('blog-previews');
 
@@ -19,7 +23,8 @@ export async function loadBlogPreviews() {
 
     try {
         const response = await fetch('blogs.json');
-        const posts = await response.json() as Post[];
+        let posts = await response.json() as Post[];
+        posts.sort(compareDates)
 
         // Clear loading state
         previewsContainer.className = 'blog-previews';
