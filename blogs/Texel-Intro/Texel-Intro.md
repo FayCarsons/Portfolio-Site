@@ -1,7 +1,7 @@
 --- 
-title: Introducing TexelPlex
+title: Introducing Texel
 date: 06-18-2025
-tags: Design, TexelPlex, Graphics, Shaders, Haskell, Effect, FounderMode
+tags: Design, Texel, Graphics, Shaders, Haskell, Effect, FounderMode
 ---
 
 Shaders were my introduction to programming. My first non-trivial programs were written in ClojureScript using a [library](https://github.com/Ella-Hoeppner/hollow) which compiled data structures to GLSL at runtime and handled all the boilerplate. With this came a lot of quality of life improvements over raw GLSL, macros which create blur kernels, arithmetic functions with arbitrary arity, the ability to splice acceleration structures produced by Clojure code into GLSL. It was a dramatically more pleasant experience than writing WebGL, even with libraries like TWGL abstracting away much of the complexity.
