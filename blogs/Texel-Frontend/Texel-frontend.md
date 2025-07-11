@@ -1,6 +1,6 @@
 ---
 title: Texel pt.2 - Effect on the frontend
-date: 7-11-2025
+date: 07-11-2025
 tags: Effect, FP, Frontend, Design, Texel
 ---
 
