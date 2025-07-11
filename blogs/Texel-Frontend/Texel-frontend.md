@@ -7,6 +7,7 @@ tags: Effect, FP, Frontend, Design, Texel
 Recently I've been working on [texel](https://faycarsons.xyz/articles/Texel-Intro), a ShaderToy successor with enhanced social features, a polished UI, and an emphasis on accessibility. Planning out the frontend I considered a handful of functional frontend languages or frameworks, and what I ended up choosing was [Effect.ts](https://effect.website) and [Solid](https://www.solidjs.com/). Much of the discussion around Effect I've encountered recently asserts that it is only suited for the backend, but I've had a largely positive experience with it and I wanted to share some of what that looks like.
 
 I'm going assume that you understand how Effect works and why it and the functional concepts it's built on are valuable. If you're unfamiliar with it, I suggest starting with their [excellent documentation](effect.website/docs).
+
 ## What does it solve?
 
 The biggest win is using one well-designed library of modular building blocks instead of a Zod + NeverThrow + Zustand and so on. Effect's modules follow the same patterns, so once you understand the core `Effect.Effect` module, you understand the rest.
@@ -19,6 +20,7 @@ I personally found the learning curve negligible coming from OCaml and Haskell, 
 For some portion of simpler, but still non-trivial, apps Effect is maybe overkill. Your React e-commerce site probably doesn't need an event bus, and maybe it doesn't need schema-based validation either, I don't know. I would argue, though, that the core patterns supplied by Effect will have a hugely positive impact on the quality of *any* codebase.
 
 Most egregiously, it *will* inflate your bundle size. You can cut a lot out, but the runtime is still there and it is not small. That said, my app, which contains a load of WebGPU boilerplate and management as well as a whole code editor, is around 200kb gzipped - far from the worst.
+
 ## What does it look like?
 
  I think Effect's benefit is most clear in my HTTP client code. With a bit of boilerplate we can get something nice and composable for all our API calls. We create a `Client` service:
