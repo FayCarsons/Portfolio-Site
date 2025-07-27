@@ -6,24 +6,26 @@ tags: Effect, FP, Frontend, Design, Texel
 
 Recently I've been working on [texel](https://faycarsons.xyz/articles/Texel-Intro), a ShaderToy successor with enhanced social features, a polished UI, and an emphasis on accessibility. Planning out the frontend I considered a handful of functional frontend languages or frameworks, and what I ended up choosing was [Effect.ts](https://effect.website) and [Solid](https://www.solidjs.com/). Much of the discussion around Effect I've encountered recently asserts that it is only suited for the backend, but I've had a largely positive experience with it and I wanted to share some of what that looks like.
 
-I'm going assume that you understand how Effect works and why it and the functional concepts it's built on are valuable. If you're unfamiliar with it, I suggest starting with their [excellent documentation](effect.website/docs).
+I'm going assume that you understand how Effect works and why it, and the functional concepts it's built on, are valuable. If you're unfamiliar with it, I suggest starting with their [excellent documentation](effect.website/docs).
 
 ## What does it solve?
 
-The biggest win is using one well-designed library of modular building blocks instead of a Zod + NeverThrow + Zustand and so on. Effect's modules follow the same patterns, so once you understand the core `Effect.Effect` module, you understand the rest.
+The biggest win is using one well-designed library of modular building blocks instead of Zod + NeverThrow + Zustand and so on. Effect's modules follow the same patterns, so once you understand the core `Effect.Effect` module, you understand the rest.
 
-After that, it's the functional idioms that I miss when I write TypeScript. I want immutable data, managed effects, sum types for error handling and state machines - and I'd prefer not to forgo TypeScript excellent tooling and ecosystem to get them. 
+After that, it's the presence of functional idioms that I miss when I write TypeScript. I want immutable data, managed effects, and sum types - and I'd prefer not to forgo TypeScript's excellent tooling and ecosystem to get them. 
 
 ## What is the cost?
-I personally found the learning curve negligible coming from OCaml and Haskell, but if you or your team don't have experience with *Typed Functional Programming*, then you may struggle to adopt it. You should probably understand what sum types, managed effects, and (I know) *monads* are.
+I personally found the learning curve negligible coming from OCaml and Haskell, but if you or your team don't have experience with Typed Functional Programming, then you may struggle to adopt it. You should probably understand what sum types, managed effects, and (to some degree) monads are.
 
-For some portion of simpler, but still non-trivial, apps Effect is maybe overkill. Your React e-commerce site probably doesn't need an event bus, and maybe it doesn't need schema-based validation either, I don't know. I would argue, though, that the core patterns supplied by Effect will have a hugely positive impact on the quality of *any* codebase.
+For some portion of simpler, but still non-trivial, apps Effect is maybe overkill. You could argue your React todo app doesn't need an event bus or schema-based validation, and that would be understandable. I would argue, though, that the core patterns supplied by Effect will have a positive impact on the quality of *any* codebase.
 
 Most egregiously, it *will* inflate your bundle size. You can cut a lot out, but the runtime is still there and it is not small. That said, my app, which contains a load of WebGPU boilerplate and management as well as a whole code editor, is around 200kb gzipped - far from the worst.
 
 ## What does it look like?
 
- I think Effect's benefit is most clear in my HTTP client code. With a bit of boilerplate we can get something nice and composable for all our API calls. We create a `Client` service:
+ I think Effect's benefit is most clear in my HTTP client code. With a bit of boilerplate we can get something nice and composable for all our API calls. 
+ 
+ First we create a `Client` service:
  
  ```typescript
 export class Client extends Context.Tag('App.Client')<Client, HttpClient>() {}
@@ -56,7 +58,7 @@ export function get(url: string): Effect.Effect<HttpClientResponse, HttpClientEr
 }
 ```
 
-And now we can define our API calls concisely, returning `Either` or `Option` for error handling, validating our data with a schema, chaining calls together:
+Then we can define our API calls concisely, returning `Either` or `Option` for error handling, validating our data with a schema, chaining calls together:
 
  ```typescript
  export function isAuthorized(): Effect.Effect<
@@ -82,7 +84,7 @@ export function login(email: string, password: string): Effect<User, LoginError 
 }
 ```
 
-Now updating our global user state is pattern matching over the result of `isAuthorized`, We can get back a sum type enumerating login errors from `login`, and, most importantly, we know which functions are able to make requests or fail, and which aren't.
+Now updating our global user state is pattern matching over the result of `isAuthorized`, We can get back a sum type enumerating errors from `login`, and we know at a glance which functions are able to make requests or fail, and which aren't.
 
 ## Concurrency and global state
 
@@ -98,9 +100,9 @@ The trivial case, fetching or updating local state looks like this:
 
 Not super exciting, but it allows us to leverage all of Effect's benefits where we need them at the cost of an extra function call.
 
-In the case of global state, things get more complicated. As mentioned, my app has a lot of complex content management and ensuring users cannot button-mash their way into some nonsense state is pretty important. 
+In the case of global state, things get more complicated. As mentioned, my app has a lot of complex content management and ensuring users cannot button-mash their way into some nonsense state is of course pretty important. 
 
-If someone presses save while also editing and changing some other fundamental aspect of their content (you'd be surprised the messes you can make with just a Vim browser extension), those interactions must be handled atomically - in the sense that they are indivisible and cannot interleave. Without this anything can happen, pasting text into images, inserting a "foo" into the "bar" table, users with auth cookies labeled guests, total chaos! To solve this, I created an event bus powered by Effect's `Queue`. 
+If someone presses save while also editing and changing some other fundamental aspect of their content (you'd be surprised the messes you can make with just a Vim browser extension), those interactions must be handled atomically - in the sense that they are indivisible and cannot be interleaved by the scheduler or runtime you're using. Without this, anything can happen. Pasting text into image files, inserting nonsense into your database, users with auth cookies labeled guests, total chaos! To solve this, I created an event bus powered by Effect's `Queue`. 
 
 First, we define an event type which can contain one of three things:
 
@@ -167,7 +169,7 @@ namespace EventBus {
 }
 ```
 
-That's it. We pull effects from the queue and execute them in sequence. Each has to complete before we can move on to the next. In the event that concurrency *is* what we want, Effect's `withConcurrency` combinator can be used to configure this on a more granular level. For example, we could extend the event type to accept arrays of effect to communicate this to the event bus and execute it like this:
+That's it. We pull effects from the queue and execute them in sequence. Each has to complete before we can move on to the next. In the event that concurrency *is* what we want, Effect's `withConcurrency` combinator can be used to configure this on a more granular level. For example, we could extend the event type to accept arrays of effects to communicate this to the event bus:
 
 ```typescript
 const result = 
@@ -177,4 +179,3 @@ const result =
 ```
 
 In conclusion, there are trade-offs and ultimately it may not be right for *your* frontend, but it can be a valuable tool for managing complexity and making your app more robust.
-
